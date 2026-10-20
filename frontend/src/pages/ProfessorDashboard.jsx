@@ -28,10 +28,12 @@ function ProfessorDashboard() {
   };
 
 
-  const openLectureReview = () => {
-    navigate(
-      "/professor/review"
-    );
+  const openDocumentReview = () => {
+    navigate("/professor/documents");
+  };
+
+  const openAIReview = () => {
+    navigate("/professor/ai-review");
   };
 
 
@@ -118,7 +120,7 @@ function ProfessorDashboard() {
             <button
               type="button"
               className="dashboard-action-button"
-              onClick={openLectureReview}
+              onClick={openDocumentReview}
             >
               Open Document Review →
             </button>
@@ -145,16 +147,15 @@ function ProfessorDashboard() {
             </h3>
 
             <p>
-              Review individual or batched claims,
-              inspect evidence and sources, then
-              accept, reject, flag, or manually edit
-              the final correction.
+              Open saved claims, run BullsAI assessments,
+              inspect explanations, then accept, reject,
+              flag, or edit instructor decisions.
             </p>
 
             <button
               type="button"
               className="dashboard-action-button"
-              onClick={openLectureReview}
+              onClick={openAIReview}
             >
               Open AI Review →
             </button>

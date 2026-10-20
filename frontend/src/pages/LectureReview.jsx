@@ -1,3 +1,5 @@
+import ClaimReviewCards from "../components/ClaimReviewCards.jsx";
+import BulkReviewButton from "../components/BulkReviewButton.jsx";
 import {
   useEffect,
   useState,
@@ -6,6 +8,7 @@ import {
 import {
   Link,
   useNavigate,
+  useSearchParams,
 } from "react-router-dom";
 
 
@@ -13,8 +16,11 @@ const BACKEND_URL =
   "http://127.0.0.1:8000";
 
 
-function LectureReview() {
+function LectureReview({ mode = "documents" }) {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+  const isAIReview = mode === "ai";
+  const requestedDocumentId = searchParams.get("document");
 
 
   // -------------------------------------------------------
@@ -475,6 +481,17 @@ function LectureReview() {
     loadSavedDocuments();
   }, []);
 
+  // "Continue to AI Verification" deep-links to this saved document.
+  useEffect(() => {
+    if (
+      isAIReview &&
+      requestedDocumentId &&
+      /^\d+$/.test(requestedDocumentId)
+    ) {
+      loadSavedDocument(Number(requestedDocumentId));
+    }
+  }, [isAIReview, requestedDocumentId]);
+
 
   // -------------------------------------------------------
   // FILE SELECTION
@@ -701,14 +718,17 @@ function LectureReview() {
   // -------------------------------------------------------
 
   const reviewClaimWithAI =
-    async (claimId) => {
+    async (claimId, throwOnError = false) => {
 
       const token =
         getProfessorToken();
 
       if (!token) {
         handleUnauthorized();
-        return;
+        if (throwOnError) {
+          throw new Error("Professor session expired.");
+        }
+        return false;
       }
 
       try {
@@ -771,10 +791,16 @@ function LectureReview() {
           `Claim ${claimId} reviewed and saved successfully.`
         );
 
+        return true;
+
       } catch (error) {
         setMessage(
           error.message
         );
+        if (throwOnError) {
+          throw error;
+        }
+        return false;
 
       } finally {
         setReviewingClaimId(
@@ -1164,7 +1190,7 @@ function LectureReview() {
           </Link>
 
           <h1>
-            Lecture Review
+            {isAIReview ? "AI Verification & Professor Decisions" : "Documents & Claim Extraction"}
           </h1>
 
           <p>
@@ -1178,6 +1204,40 @@ function LectureReview() {
 
       <main className="professor-content">
 
+        <section className="card workflow-intro">
+          <p className="dashboard-eyebrow">
+            {isAIReview ? "STAGE 2 OF 2" : "STAGE 1 OF 2"}
+          </p>
+          <h2>
+            {isAIReview ? "Verify saved claims" : "Prepare lecture material"}
+          </h2>
+          <p className="description">
+            {isAIReview
+              ? "Choose a lecture that has already been processed. Run BullsAI assessments and record professor decisions. No need to upload the file again."
+              : "Upload a PDF or DOCX, extract text, and save claims. When your claims are ready, continue to AI verification."}
+          </p>
+          <div className="workflow-tabs">
+            <Link
+              className={`workflow-tab ${!isAIReview ? "workflow-tab-active" : ""}`}
+              to="/professor/documents"
+            >
+              1. Documents & Extraction
+            </Link>
+            <Link
+              className={`workflow-tab ${isAIReview ? "workflow-tab-active" : ""}`}
+              to="/professor/ai-review"
+            >
+              2. AI Verification & Decisions
+            </Link>
+          </div>
+        </section>
+
+        {message && (
+          <div className="message workflow-message" role="status">
+            {message}
+          </div>
+        )}
+
         {/* ============================================= */}
         {/* SAVED DOCUMENTS */}
         {/* ============================================= */}
@@ -1189,9 +1249,9 @@ function LectureReview() {
           </h2>
 
           <p className="description">
-            Reopen a previously analyzed lecture,
-            continue reviewing it, or delete an
-            outdated document.
+            {isAIReview
+              ? "Select a processed lecture to review its saved claims."
+              : "Reopen a previously processed lecture, preview its claims, or delete an outdated document."}
           </p>
 
 
@@ -1218,7 +1278,9 @@ function LectureReview() {
           0 ? (
 
             <p className="description">
-              No saved lecture documents were found.
+              {isAIReview
+                ? "No processed lectures found. Upload and extract claims from a lecture first."
+                : "No saved lecture documents were found."}
             </p>
 
           ) : (
@@ -1333,29 +1395,20 @@ function LectureReview() {
                                 : documentId ===
                                     document.id
                                   ? "Reload"
+                                  : isAIReview
+                                  ? "Open Claims"
                                   : "Open"}
                             </button>
 
 
-                            <button
-                              onClick={() =>
-                                deleteSavedDocument(
-                                  document
-                                )
-                              }
-
-                              disabled={
-                                deletingDocumentId !==
-                                  null ||
-                                loadingDocumentId !==
-                                  null
-                              }
-                            >
-                              {deletingDocumentId ===
-                              document.id
-                                ? "Deleting..."
-                                : "Delete"}
-                            </button>
+                            {!isAIReview && (
+                              <button
+                                onClick={() => deleteSavedDocument(document)}
+                                disabled={deletingDocumentId !== null || loadingDocumentId !== null}
+                              >
+                                {deletingDocumentId === document.id ? "Deleting..." : "Delete"}
+                              </button>
+                            )}
 
                           </div>
 
@@ -1381,6 +1434,7 @@ function LectureReview() {
         {/* UPLOAD NEW LECTURE */}
         {/* ============================================= */}
 
+        {!isAIReview && (
         <section className="card">
 
           <h2>
@@ -1463,22 +1517,16 @@ function LectureReview() {
           )}
 
 
-          {message && (
-
-            <div className="message">
-              {message}
-            </div>
-
-          )}
 
         </section>
+        )}
 
 
         {/* ============================================= */}
         {/* EXTRACTED TEXT */}
         {/* ============================================= */}
 
-        {extractedText && (
+        {!isAIReview && extractedText && (
 
           <section className="card">
 
@@ -1510,7 +1558,7 @@ function LectureReview() {
           <section className="card">
 
             <h2>
-              Current Lecture
+              {isAIReview ? "Selected Lecture for Verification" : "Current Lecture"}
             </h2>
 
             <p className="description">
@@ -1543,10 +1591,64 @@ function LectureReview() {
 
 
         {/* ============================================= */}
+        {/* DOCUMENT MODE: CLAIMS READY TO VERIFY */}
+        {/* ============================================= */}
+
+        {!isAIReview && claims.length > 0 && (
+          <section className="card">
+            <h2>Extracted Anatomy Claims</h2>
+            <p className="description">
+              {claims.length} claims have been saved. Review the extraction below,
+              then open the AI Verification page for BullsAI assessment and
+              professor decisions.
+            </p>
+            <Link
+              className="workflow-continue-link"
+              to={`/professor/ai-review?document=${documentId}`}
+            >
+              Continue to AI Verification →
+            </Link>
+            <div className="table-wrapper">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Claim #</th>
+                    <th>Page</th>
+                    <th>Extracted Claim</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {claims.map((claim) => (
+                    <tr key={claim.id}>
+                      <td>{claim.claim_number}</td>
+                      <td>{claim.page ?? "—"}</td>
+                      <td className="claim-text">{claim.text}</td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+        )}
+
+        {isAIReview && !currentDocument && (
+          <section className="card">
+            <h2>Choose a saved lecture above</h2>
+            <p className="description">
+              This page uses claims already extracted from your saved documents.
+              To add a new lecture, go to document extraction first.
+            </p>
+            <Link className="workflow-continue-link" to="/professor/documents">
+              Go to Document Extraction →
+            </Link>
+          </section>
+        )}
+
+        {/* ============================================= */}
         {/* AI SUMMARY */}
         {/* ============================================= */}
 
-        {claims.length > 0 && (
+        {isAIReview && claims.length > 0 && (
 
           <section className="card">
 
@@ -1555,10 +1657,10 @@ function LectureReview() {
             </h2>
 
             <p className="description">
-              AI performs an initial factual review and
-              retrieves external sources when available.
-              These results are suggestions only. The
-              instructor remains the final authority.
+              BullsAI generates an initial assessment when configured.
+              External citation retrieval is not yet integrated, so model
+              assessments are not independently source-verified. The
+              professor makes the final decision.
             </p>
 
 
@@ -1645,10 +1747,8 @@ function LectureReview() {
 
 
             <p className="description">
-              Review claims individually for now.
-              Bulk AI review is temporarily disabled
-              while the development Gemini API is
-              rate-limited.
+              Review each claim individually using the BullsAI configuration.
+              Bulk persisted reviews are not available in this interface yet.
             </p>
 
           </section>
@@ -1660,7 +1760,7 @@ function LectureReview() {
         {/* INSTRUCTOR REVIEW */}
         {/* ============================================= */}
 
-        {claims.length > 0 && (
+        {isAIReview && claims.length > 0 && (
 
           <section className="card">
 
@@ -1738,457 +1838,33 @@ function LectureReview() {
             </div>
 
 
-            <div className="table-wrapper">
-
-              <table>
-
-                <thead>
-
-                  <tr>
-
-                    <th>
-                      DB ID
-                    </th>
-
-                    <th>
-                      Claim #
-                    </th>
-
-                    <th>
-                      Page
-                    </th>
-
-                    <th>
-                      Original Claim
-                    </th>
-
-                    <th>
-                      AI Review
-                    </th>
-
-                    <th>
-                      AI Status
-                    </th>
-
-                    <th>
-                      Reason
-                    </th>
-
-                    <th>
-                      Suggested Correction
-                    </th>
-
-                    <th>
-                      Sources
-                    </th>
-
-                    <th>
-                      Instructor Decision
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  {claims.map(
-                    (claim) => (
-
-                      <tr
-                        key={
-                          claim.id
-                        }
-                      >
-
-                        <td>
-                          {claim.id}
-                        </td>
-
-
-                        <td>
-                          {
-                            claim.claim_number
-                          }
-                        </td>
-
-
-                        <td>
-                          {
-                            claim.page ??
-                            "—"
-                          }
-                        </td>
-
-
-                        <td className="claim-text">
-                          {claim.text}
-                        </td>
-
-
-                        <td>
-
-                          <button
-                            className="review-button"
-
-                            onClick={() =>
-                              reviewClaimWithAI(
-                                claim.id
-                              )
-                            }
-
-                            disabled={
-                              reviewingClaimId !==
-                                null ||
-                              savingDecisionClaimId !==
-                                null
-                            }
-                          >
-
-                            {reviewingClaimId ===
-                            claim.id
-                              ? "Reviewing..."
-                              : claim.ai_status !==
-                                  "not_reviewed"
-                                ? "Review Again"
-                                : "Review with AI"}
-
-                          </button>
-
-                        </td>
-
-
-                        <td>
-
-                          <span
-                            className={`status-badge ${getAIStatusClass(
-                              claim.ai_status
-                            )}`}
-                          >
-                            {
-                              formatAIStatus(
-                                claim.ai_status
-                              )
-                            }
-                          </span>
-
-                        </td>
-
-
-                        <td className="reason-text">
-
-                          {
-                            claim.reason ||
-                            "—"
-                          }
-
-                        </td>
-
-
-                        <td className="correction-text">
-
-                          {
-                            claim.suggested_correction ||
-                            "—"
-                          }
-
-
-                          {claim.professor_correction && (
-
-                            <div
-                              style={{
-                                marginTop:
-                                  "10px",
-                              }}
-                            >
-
-                              <strong>
-                                Professor version:
-                              </strong>
-
-                              <div>
-                                {
-                                  claim.professor_correction
-                                }
-                              </div>
-
-                            </div>
-
-                          )}
-
-                        </td>
-
-
-                        <td>
-
-                          {claim.sources &&
-                          claim.sources.length >
-                            0 ? (
-
-                            <div>
-
-                              {
-                                claim.sources.map(
-                                  (
-                                    source,
-                                    index
-                                  ) => (
-
-                                    <div
-                                      key={
-                                        source.id ||
-                                        `${claim.id}-${index}`
-                                      }
-
-                                      style={{
-                                        marginBottom:
-                                          "8px",
-                                      }}
-                                    >
-
-                                      <a
-                                        href={
-                                          source.url
-                                        }
-
-                                        target="_blank"
-
-                                        rel="noreferrer"
-                                      >
-                                        {
-                                          source.title ||
-                                          "View Source"
-                                        }
-                                      </a>
-
-
-                                      {source.evidence_text && (
-
-                                        <div
-                                          style={{
-                                            marginTop:
-                                              "4px",
-                                          }}
-                                        >
-                                          {
-                                            source.evidence_text
-                                          }
-                                        </div>
-
-                                      )}
-
-                                    </div>
-
-                                  )
-                                )
-                              }
-
-                            </div>
-
-                          ) : (
-                            "—"
-                          )}
-
-                        </td>
-
-
-                        <td>
-
-                          <div
-                            style={{
-                              display:
-                                "flex",
-
-                              flexDirection:
-                                "column",
-
-                              gap:
-                                "8px",
-
-                              minWidth:
-                                "160px",
-                            }}
-                          >
-
-                            <strong>
-                              {
-                                formatDecision(
-                                  claim.instructor_decision
-                                )
-                              }
-                            </strong>
-
-
-                            <button
-                              onClick={() =>
-                                saveProfessorDecision(
-                                  claim.id,
-                                  "accepted"
-                                )
-                              }
-
-                              disabled={
-                                savingDecisionClaimId ===
-                                  claim.id
-                              }
-                            >
-                              Accept
-                            </button>
-
-
-                            <button
-                              onClick={() =>
-                                saveProfessorDecision(
-                                  claim.id,
-                                  "rejected"
-                                )
-                              }
-
-                              disabled={
-                                savingDecisionClaimId ===
-                                  claim.id
-                              }
-                            >
-                              Reject
-                            </button>
-
-
-                            <button
-                              onClick={() =>
-                                startEditingCorrection(
-                                  claim
-                                )
-                              }
-
-                              disabled={
-                                savingDecisionClaimId ===
-                                  claim.id
-                              }
-                            >
-                              Edit
-                            </button>
-
-
-                            <button
-                              onClick={() =>
-                                saveProfessorDecision(
-                                  claim.id,
-                                  "needs_review"
-                                )
-                              }
-
-                              disabled={
-                                savingDecisionClaimId ===
-                                  claim.id
-                              }
-                            >
-                              Needs Review
-                            </button>
-
-
-                            {editingClaimId ===
-                              claim.id && (
-
-                              <div>
-
-                                <textarea
-                                  value={
-                                    editCorrectionText
-                                  }
-
-                                  onChange={(
-                                    event
-                                  ) =>
-                                    setEditCorrectionText(
-                                      event.target.value
-                                    )
-                                  }
-
-                                  rows="5"
-
-                                  placeholder="Enter the professor-approved correction."
-                                />
-
-
-                                <div
-                                  style={{
-                                    display:
-                                      "flex",
-
-                                    gap:
-                                      "6px",
-
-                                    marginTop:
-                                      "6px",
-                                  }}
-                                >
-
-                                  <button
-                                    onClick={() =>
-                                      saveEditedCorrection(
-                                        claim.id
-                                      )
-                                    }
-
-                                    disabled={
-                                      savingDecisionClaimId ===
-                                        claim.id
-                                    }
-                                  >
-                                    Save Edit
-                                  </button>
-
-
-                                  <button
-                                    onClick={() => {
-                                      setEditingClaimId(
-                                        null
-                                      );
-
-                                      setEditCorrectionText(
-                                        ""
-                                      );
-                                    }}
-
-                                    disabled={
-                                      savingDecisionClaimId ===
-                                        claim.id
-                                    }
-                                  >
-                                    Cancel
-                                  </button>
-
-                                </div>
-
-                              </div>
-
-                            )}
-
-
-                            {savingDecisionClaimId ===
-                              claim.id && (
-
-                              <span>
-                                Saving...
-                              </span>
-
-                            )}
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
-            </div>
+            <BulkReviewButton
+              claims={claims}
+              reviewClaimWithAI={(claimId) =>
+                reviewClaimWithAI(claimId, true)
+              }
+              disabled={reviewingClaimId !== null || loading}
+            />
+
+            <ClaimReviewCards
+              claims={claims}
+              reviewClaimWithAI={reviewClaimWithAI}
+              saveProfessorDecision={saveProfessorDecision}
+              startEditingCorrection={startEditingCorrection}
+              saveEditedCorrection={saveEditedCorrection}
+              editingClaimId={editingClaimId}
+              editCorrectionText={editCorrectionText}
+              setEditCorrectionText={setEditCorrectionText}
+              cancelEditing={() => {
+                setEditingClaimId(null);
+                setEditCorrectionText("");
+              }}
+              reviewingClaimId={reviewingClaimId}
+              savingDecisionClaimId={savingDecisionClaimId}
+              formatAIStatus={formatAIStatus}
+              getAIStatusClass={getAIStatusClass}
+              formatDecision={formatDecision}
+            />
 
           </section>
 

@@ -58,12 +58,26 @@ function App() {
         />
 
         <Route
-          path="/professor/review"
+          path="/professor/documents"
           element={
             <ProtectedProfessorRoute>
-              <LectureReview />
+              <LectureReview mode="documents" />
             </ProtectedProfessorRoute>
           }
+        />
+
+        <Route
+          path="/professor/ai-review"
+          element={
+            <ProtectedProfessorRoute>
+              <LectureReview mode="ai" />
+            </ProtectedProfessorRoute>
+          }
+        />
+
+        <Route
+          path="/professor/review"
+          element={<Navigate to="/professor/documents" replace />}
         />
 
         <Route

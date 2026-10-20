@@ -696,3 +696,11 @@ select {
   }
 
 }
+/* Separate document extraction and AI verification stages */
+.workflow-intro { margin-bottom: 22px; }
+.workflow-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
+.workflow-tab { display: inline-flex; align-items: center; border: 1px solid #d7e0ed; background: #f8fafc; color: #1f4f82; border-radius: 8px; text-decoration: none; padding: 10px 14px; font-weight: 600; }
+.workflow-tab-active { border-color: #1f4f82; background: #eaf2fc; }
+.workflow-continue-link { display: inline-block; color: #fff; text-decoration: none; background: #1f4f82; font-weight: 700; padding: 12px 17px; border-radius: 8px; margin: 12px 0 20px; }
+.workflow-continue-link:hover { background: #163b61; }
+.workflow-message { margin: 0 0 20px; }
