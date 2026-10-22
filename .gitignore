@@ -35,3 +35,10 @@ build/
 
 # Logs
 *.log
+
+# Professor-uploaded reference textbooks
+reference_library/
+
+# Uploaded lecture documents
+uploads/
+
