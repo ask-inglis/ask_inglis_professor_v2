@@ -1,706 +1,409 @@
-* {
-  box-sizing: border-box;
+/* Ask Inglis — Anatomy AI visual foundation.
+   Drop-in replacement for frontend/src/App.css.
+   No API, route, or data-flow changes are required. */
+@import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@400;500;600;700;800&family=Manrope:wght@400;500;600;700;800&display=swap');
+
+:root {
+  font-family: 'DM Sans', 'Arial', sans-serif;
+  color-scheme: dark;
+  --ink: #eaf4ff;
+  --muted: #a8bbd4;
+  --subtle: #8098ba;
+  --panel: rgba(11, 29, 54, .85);
+  --panel-strong: rgba(10, 27, 51, .96);
+  --line: rgba(131, 187, 246, .23);
+  --cyan: #53cdfd;
+  --blue: #378cff;
+  --violet: #aa8dff;
+  --mint: #57d4ba;
+  --amber: #f9c46a;
+  --rose: #ff8898;
+  --radius: 20px;
+  --shadow: 0 22px 64px rgba(0, 4, 20, .32);
 }
 
-html,
-body,
-#root {
-  margin: 0;
-  min-width: 100%;
-  min-height: 100%;
-}
-
+* { box-sizing: border-box; }
+html, body, #root { min-height: 100%; margin: 0; width: 100%; }
+html { background: #071426; scroll-behavior: smooth; }
 body {
-  margin: 0;
-  font-family:
-    Arial,
-    Helvetica,
-    sans-serif;
-
-  background: #f5f7fb;
-  color: #1f2937;
+  overflow-x: hidden;
+  font-family: 'DM Sans', 'Arial', sans-serif;
+  color: var(--ink);
+  background: radial-gradient(ellipse at 80% -7%, #193c6a 0, transparent 47%),
+              radial-gradient(ellipse at -10% 55%, #202b65 0, transparent 44%),
+              linear-gradient(145deg, #05101e 3%, #081a32 55%, #081025 100%);
+  background-attachment: fixed;
 }
-
-button,
-input,
-textarea,
-select {
-  font: inherit;
+/* Scientific filaments / structural lines made in CSS. No external anatomical asset licensing dependency. */
+body::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .45;
+  background-image:
+    radial-gradient(circle at 15% 24%, rgba(111,203,255,.32) 0 2px, transparent 3px),
+    radial-gradient(circle at 78% 38%, rgba(185,126,255,.31) 0 2px, transparent 3px),
+    radial-gradient(circle at 61% 76%, rgba(75,195,247,.21) 0 2px, transparent 3px),
+    linear-gradient(130deg, transparent 48%, rgba(68,141,225,.055) 50%, transparent 52%),
+    repeating-linear-gradient(0deg, transparent 0 77px, rgba(130,177,247,.027) 78px 79px),
+    repeating-linear-gradient(90deg, transparent 0 77px, rgba(130,177,247,.027) 78px 79px);
+  background-size: 540px 480px, 650px 540px, 400px 380px, 210px 210px, 100% 100%, 100% 100%;
+  animation: anatomyAmbient 28s ease-in-out infinite alternate;
 }
-
-
-/* --------------------------------------------------
-   GENERAL
--------------------------------------------------- */
-
-.card {
-  background: white;
-  border: 1px solid #e5e7eb;
-  border-radius: 12px;
-  padding: 24px;
-  margin-bottom: 24px;
+body::after {
+  content: '';
+  position: fixed;
+  width: min(62vw, 820px);
+  height: min(62vw, 820px);
+  right: -20vw;
+  top: 12vh;
+  z-index: 0;
+  pointer-events: none;
+  opacity: .52;
+  border: 1px solid rgba(74, 171, 255, .14);
+  border-radius: 50%;
+  box-shadow: 0 0 0 44px rgba(92,164,255,.019), 0 0 0 105px rgba(92,164,255,.018), inset 0 0 110px rgba(43,141,255,.055);
+  animation: anatomyOrbit 34s linear infinite;
 }
+#root { position: relative; z-index: 1; isolation: isolate; }
+::selection { background: rgba(76, 170, 255, .42); color: #fff; }
 
-.card h2 {
-  margin-top: 0;
-}
-
-.description {
-  color: #6b7280;
-  margin-bottom: 20px;
-}
-
-.file-info {
-  margin-top: 16px;
-  padding: 12px;
-  background: #f3f4f6;
-  border-radius: 8px;
-}
-
-.actions {
-  display: flex;
-  gap: 12px;
-  margin-top: 20px;
-  flex-wrap: wrap;
-}
-
+h1, h2, h3, h4 { font-family: 'Manrope', 'DM Sans', sans-serif; letter-spacing: -.035em; }
+h1, h2, h3, h4, p { overflow-wrap: anywhere; }
+h1 { font-weight: 800; }
+a { color: #84cfff; text-decoration-color: rgba(132, 207, 255, .3); }
+a:hover { color: #c8eaff; }
+button, input, select, textarea { font: inherit; }
 button {
-  border: none;
-  border-radius: 8px;
-  padding: 12px 18px;
   cursor: pointer;
-
-  background: #1f4f82;
-  color: white;
-
-  font-weight: 600;
-
-  transition:
-    background 0.15s ease,
-    transform 0.15s ease;
+  border: 1px solid rgba(114, 181, 252, .28);
+  color: #fff;
+  border-radius: 11px;
+  padding: 11px 17px;
+  font-weight: 700;
+  background: linear-gradient(115deg, #176be3, #4b72f0 65%, #705fe8);
+  box-shadow: 0 5px 19px rgba(13, 76, 176, .22);
+  transition: transform .2s ease, box-shadow .2s ease, filter .2s ease, border-color .2s ease;
 }
-
-button:hover:not(:disabled) {
-  background: #163b61;
-}
-
-button:active:not(:disabled) {
-  transform: translateY(1px);
-}
-
-button:disabled {
-  opacity: 0.6;
-  cursor: not-allowed;
-}
-
-.loading {
-  margin-top: 16px;
-}
-
-.message {
-  margin-top: 16px;
-
+button:hover:not(:disabled) { transform: translateY(-2px); filter: brightness(1.13); box-shadow: 0 10px 28px rgba(25,105,225,.25); }
+button:active:not(:disabled) { transform: translateY(0); }
+button:disabled { opacity: .52; cursor: not-allowed; box-shadow: none; }
+:focus-visible { outline: 2px solid #75d7ff; outline-offset: 3px; }
+input, select, textarea {
+  color: var(--ink);
+  background: rgba(3, 17, 36, .73);
+  border: 1px solid rgba(124, 181, 247, .31);
+  border-radius: 11px;
   padding: 12px 14px;
-
-  background: #eef4ff;
-
-  border-radius: 8px;
-
-  line-height: 1.5;
+  max-width: 100%;
+  transition: border-color .2s ease, box-shadow .2s ease;
 }
+input::placeholder, textarea::placeholder { color: #8295ad; }
+input:focus, select:focus, textarea:focus { border-color: #59bfff; box-shadow: 0 0 0 3px rgba(56,162,252,.14); outline: none; }
+select option { background: #132842; color: #eef6ff; }
+textarea { width: 100%; resize: vertical; }
 
-textarea {
-  width: 100%;
-
-  resize: vertical;
-
-  padding: 14px;
-
-  border: 1px solid #d1d5db;
-
-  border-radius: 8px;
-
-  background: #fafafa;
-
-  color: #111827;
+/* Shared glass surfaces */
+.card, .login-card, .dashboard-welcome, .dashboard-tile, .summary-card,
+.claim-review-card, .claim-review-toolbar, .claim-review-details, .claim-review-source {
+  background: var(--panel);
+  border: 1px solid var(--line);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
 }
+.card { padding: clamp(20px, 3vw, 32px); margin-bottom: 25px; }
+.card h2 { margin-top: 0; }
+.description, .dashboard-tile p, .dashboard-welcome p, .login-card > p, .professor-header p { color: var(--muted); line-height: 1.65; }
+.file-info, .message, .login-message {
+  margin-top: 16px;
+  padding: 14px 17px;
+  border-radius: 12px;
+  border: 1px solid rgba(104,176,255,.18);
+  background: rgba(39,93,167,.16);
+  color: #d1e9ff;
+}
+.actions { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 20px; }
+.loading { margin-top: 16px; }
 
-
-/* --------------------------------------------------
-   PROFESSOR LOGIN
--------------------------------------------------- */
-
+/* Professor login — centered card with luminous medical-science ambience */
 .login-page {
-  min-height: 100vh;
-
+  position: relative;
+  min-height: 100svh;
   display: flex;
-
   align-items: center;
-
   justify-content: center;
-
-  background: #f5f7fb;
-
-  padding: 30px;
+  padding: 65px 24px;
+  background: transparent;
+  overflow: hidden;
 }
-
+.login-page::before, .login-page::after {
+  content: '';
+  position: absolute;
+  pointer-events: none;
+  z-index: -1;
+  width: min(35vw, 410px);
+  aspect-ratio: 1;
+  border: 1px solid rgba(75,181,249,.18);
+  border-radius: 50%;
+  filter: drop-shadow(0 0 38px rgba(25,122,232,.11));
+}
+.login-page::before { left: -10%; top: 9%; box-shadow: 0 0 0 38px rgba(28,134,246,.021), 0 0 0 85px rgba(28,134,246,.015); }
+.login-page::after { right: -8%; bottom: 4%; box-shadow: 0 0 0 40px rgba(143,112,243,.022), 0 0 0 99px rgba(143,112,243,.014); }
 .login-card {
-  width: min(
-    440px,
-    100%
-  );
-
-  background: white;
-
-  border:
-    1px solid #e5e7eb;
-
-  border-radius: 14px;
-
-  padding: 32px;
-
-  box-shadow:
-    0 12px 35px
-    rgba(
-      0,
-      0,
-      0,
-      0.04
-    );
+  position: relative;
+  width: min(465px, 100%);
+  padding: clamp(25px, 4vw, 44px);
+  background: linear-gradient(147deg, rgba(21,49,85,.94), rgba(8,23,47,.96));
+  border-color: rgba(115,191,255,.37);
+  box-shadow: 0 35px 90px rgba(0,3,22,.53), inset 0 1px 0 rgba(182,225,255,.08);
+  animation: riseIn .65s both;
 }
-
-.login-card h1 {
-  margin-bottom: 8px;
+.login-card::before { content: ''; display: block; width: 65px; height: 4px; border-radius: 999px; background: linear-gradient(90deg, #56d6ff, #8175ff); margin: 0 0 28px; box-shadow: 0 0 20px rgba(73,178,254,.5); }
+.login-card h1 { margin: 0 0 9px; font-size: clamp(26px, 3.3vw, 37px); line-height: 1.2; }
+.login-card > p { margin-bottom: 24px; }
+.login-card > .login-eyebrow, .dashboard-eyebrow {
+  margin: 0 0 10px;
+  color: #79d9ff;
+  font-size: 12px;
+  font-weight: 800;
+  letter-spacing: .16em;
+  text-transform: uppercase;
 }
+.login-card label { display: block; margin: 17px 0 8px; color: #dfebfd; font-weight: 700; }
+.login-card input { width: 100%; }
+.login-card button { width: 100%; margin-top: 23px; min-height: 48px; }
 
-.login-card > p {
-  color: #6b7280;
-  margin-bottom: 26px;
-}
-
-.login-card > .login-eyebrow {
-  margin: 0 0 8px;
-  color: #1f4f82;
-  font-size: 13px;
-  font-weight: 700;
-  letter-spacing: 0.08em;
-}
-
-.login-card label {
-  display: block;
-
-  margin:
-    16px 0 7px;
-
-  font-weight: 600;
-}
-
-.login-card input {
-  width: 100%;
-
-  padding: 11px 12px;
-
-  border:
-    1px solid #d1d5db;
-
-  border-radius: 8px;
-}
-
-.login-card input:focus {
-  outline:
-    2px solid
-    #bfdbfe;
-
-  border-color:
-    #1f4f82;
-}
-
-.login-card button {
-  width: 100%;
-  margin-top: 22px;
-}
-
-.login-message {
-  margin-top: 18px;
-
-  padding: 12px;
-
-  border-radius: 8px;
-
-  background: #eef4ff;
-}
-
-
-/* --------------------------------------------------
-   PROFESSOR DASHBOARD
--------------------------------------------------- */
-
-.professor-page {
-  min-height: 100vh;
-
-  background: #f5f7fb;
-}
-
+/* Professor navigation, dashboard and content */
+.professor-page { min-height: 100svh; background: transparent; }
 .professor-header {
-  background: white;
-
-  border-bottom:
-    1px solid #e5e7eb;
-
-  padding: 22px 5%;
-
+  position: relative;
   display: flex;
-
-  justify-content:
-    space-between;
-
+  justify-content: space-between;
   align-items: center;
-
-  gap: 24px;
-}
-
-.professor-header h1 {
-  margin: 0;
-
-  font-size: 30px;
-}
-
-.professor-header p {
-  margin: 5px 0 0;
-
-  color: #6b7280;
-}
-
-.professor-header-actions {
-  display: flex;
-
-  align-items: center;
-
-  gap: 16px;
-}
-
-.professor-header-actions span {
-  color: #6b7280;
-
-  font-size: 14px;
-}
-
-.professor-content {
-  width: min(
-    1200px,
-    92%
-  );
-
-  margin:
-    32px auto;
-}
-
-.dashboard-welcome {
-  background: white;
-
-  border:
-    1px solid #e5e7eb;
-
-  border-radius: 12px;
-
-  padding: 24px;
-
-  margin-bottom: 24px;
-}
-
-.dashboard-welcome h2 {
-  margin:
-    5px 0 10px;
-}
-
-.dashboard-welcome p:last-child {
-  color: #6b7280;
-}
-
-.dashboard-eyebrow {
-  margin: 0 0 6px;
-
-  color: #1f4f82;
-
-  font-size: 12px;
-
-  font-weight: 700;
-
-  letter-spacing: 0.08em;
-}
-
-.dashboard-grid {
-  display: grid;
-
-  grid-template-columns:
-    repeat(
-      2,
-      minmax(
-        0,
-        1fr
-      )
-    );
-
   gap: 18px;
+  padding: 20px max(4%, calc((100% - 1350px) / 2));
+  border-bottom: 1px solid rgba(119,184,255,.21);
+  background: rgba(5, 17, 35, .86);
+  backdrop-filter: blur(22px);
+  -webkit-backdrop-filter: blur(22px);
 }
-
-.dashboard-tile {
-  background: white;
-
-  border:
-    1px solid #e5e7eb;
-
-  border-radius: 12px;
-
-  padding: 22px;
-
-  transition:
-    transform 0.15s ease,
-    box-shadow 0.15s ease,
-    border-color 0.15s ease;
+.professor-header h1 { margin: 0; font-size: clamp(23px, 3vw, 34px); background: linear-gradient(100deg,#f2f8ff,#96d6ff); -webkit-background-clip: text; background-clip: text; color: transparent; }
+.professor-header p { margin: 4px 0 0; font-size: 14px; }
+.professor-header-actions { display: flex; align-items: center; gap: 15px; flex-wrap: wrap; }
+.professor-header-actions span { color: var(--muted); font-size: 13px; }
+.professor-content { width: min(1320px, 92%); margin: 35px auto 80px; }
+.dashboard-welcome {
+  padding: clamp(24px, 3.8vw, 44px);
+  margin-bottom: 24px;
+  background: radial-gradient(ellipse at 92% 6%, rgba(56,135,238,.23), transparent 42%), var(--panel);
 }
-
-.dashboard-tile h3 {
-  margin:
-    0 0 12px;
-}
-
-.dashboard-tile p {
-  color: #6b7280;
-
-  line-height: 1.5;
-
-  margin-bottom: 0;
-}
-
-.dashboard-tile-active:hover {
-  transform:
-    translateY(-2px);
-
-  border-color:
-    #b8cbe0;
-
-  box-shadow:
-    0 8px 22px
-    rgba(
-      0,
-      0,
-      0,
-      0.06
-    );
-}
-
-.dashboard-tile-top {
-  display: flex;
-
-  align-items: center;
-
-  justify-content:
-    space-between;
-
-  margin-bottom: 18px;
-}
-
-.dashboard-icon {
-  width: 42px;
-
-  height: 42px;
-
-  border-radius: 10px;
-
-  display: flex;
-
-  align-items: center;
-
-  justify-content: center;
-
-  background: #eef4ff;
-
-  color: #1f4f82;
-
-  font-size: 13px;
-
-  font-weight: 700;
-}
-
-.feature-status {
-  padding: 5px 9px;
-
-  border-radius: 999px;
-
-  background: #f3f4f6;
-
-  color: #6b7280;
-
-  font-size: 11px;
-
-  font-weight: 600;
-}
-
-.feature-active {
-  background: #dcfce7;
-
-  color: #166534;
-}
-
-.dashboard-action-button {
-  display: inline-flex;
-
-  margin-top: 18px;
-
-  padding: 0;
-
-  border: none;
-
-  background: transparent;
-
-  color: #1f4f82;
-
-  font-size: 14px;
-
-  font-weight: 700;
-
-  cursor: pointer;
-}
-
-.dashboard-action-button:hover:not(:disabled) {
-  background: transparent;
-
-  color: #163b61;
-}
-
-
-/* --------------------------------------------------
-   LECTURE REVIEW PAGE
--------------------------------------------------- */
-
-.review-back-link {
-  display: inline-block;
-
-  margin-bottom: 9px;
-
-  color: #1f4f82;
-
-  text-decoration: none;
-
-  font-size: 14px;
-
-  font-weight: 600;
-}
-
-.review-back-link:hover {
-  text-decoration: underline;
-}
-
-
-/* --------------------------------------------------
-   SUMMARY CARDS
--------------------------------------------------- */
-
-.review-summary {
-  display: grid;
-
-  grid-template-columns:
-    repeat(
-      5,
-      minmax(
-        140px,
-        1fr
-      )
-    );
-
-  gap: 12px;
-
-  margin: 20px 0;
-}
-
-.summary-card {
-  border:
-    1px solid #e5e7eb;
-
-  border-radius: 10px;
-
-  padding: 14px;
-
-  background: #f9fafb;
-}
-
-.summary-card span {
-  display: block;
-
-  font-size: 13px;
-
-  color: #6b7280;
-
-  margin-bottom: 6px;
-}
-
-.summary-card strong {
-  font-size: 24px;
-
-  color: #111827;
-}
-
-
-/* --------------------------------------------------
-   REVIEW TABLE
--------------------------------------------------- */
-
-.table-wrapper {
-  overflow-x: auto;
-}
-
-table {
-  width: 100%;
-
-  border-collapse:
-    collapse;
-}
-
-th,
-td {
-  text-align: left;
-
-  padding: 12px;
-
-  border-bottom:
-    1px solid #e5e7eb;
-
-  vertical-align: top;
-}
-
-th {
-  background: #f9fafb;
-
-  white-space: nowrap;
-}
-
-.claim-text {
-  min-width: 300px;
-
-  max-width: 420px;
-}
-
-.reason-text {
-  min-width: 250px;
-
-  max-width: 400px;
-}
-
-.correction-text {
-  min-width: 200px;
-
-  max-width: 350px;
-}
-
-.review-button {
-  min-width: 120px;
-
-  padding: 9px 12px;
-
-  font-size: 13px;
-}
-
-.status-badge {
-  display: inline-block;
-
-  padding: 6px 10px;
-
-  border-radius: 999px;
-
-  font-size: 12px;
-
-  font-weight: 600;
-
-  white-space: nowrap;
-}
-
-.status-not-reviewed {
-  background: #e5e7eb;
-
-  color: #374151;
-}
-
-.status-likely-correct {
-  background: #dcfce7;
-
-  color: #166534;
-}
-
-.status-possible-error {
-  background: #fee2e2;
-
-  color: #991b1b;
-}
-
-.status-needs-review {
-  background: #fef3c7;
-
-  color: #92400e;
-}
-
-select {
-  min-width: 180px;
-
-  padding: 8px;
-
-  border:
-    1px solid #d1d5db;
-
-  border-radius: 6px;
-
-  background: white;
-
-  color: #1f2937;
-}
-
-
-/* --------------------------------------------------
-   RESPONSIVE
--------------------------------------------------- */
-
-@media (
-  max-width: 900px
-) {
-  .review-summary {
-    grid-template-columns:
-      repeat(
-        2,
-        1fr
-      );
-  }
-}
-
-
-@media (
-  max-width: 700px
-) {
-  .professor-header {
-    align-items:
-      flex-start;
-
-    flex-direction:
-      column;
-  }
-
-  .dashboard-grid {
-    grid-template-columns:
-      1fr;
-  }
-
-  .professor-header-actions {
-    width: 100%;
-
-    justify-content:
-      space-between;
-  }
-
-}
-/* Separate document extraction and AI verification stages */
+.dashboard-welcome h2 { margin: 7px 0 13px; font-size: clamp(24px,3.4vw,37px); }
+.dashboard-grid { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 20px; }
+.dashboard-tile { position: relative; overflow: hidden; padding: 26px; transition: transform .25s ease, border-color .25s ease, background .25s ease; }
+.dashboard-tile::before { content: ''; position: absolute; inset: 0 auto auto 0; width: 100%; height: 3px; background: linear-gradient(90deg, #54c8ff, #9e8dff, transparent); opacity: .75; }
+.dashboard-tile-active:hover { transform: translateY(-5px); border-color: rgba(98,206,255,.6); background: rgba(18,48,82,.93); }
+.dashboard-tile h3 { margin: 0 0 10px; font-size: clamp(18px,2.2vw,23px); }
+.dashboard-tile p { margin-bottom: 0; }
+.dashboard-tile-top { display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 19px; }
+.dashboard-icon { width: 52px; height: 52px; display: grid; place-items: center; border-radius: 15px; background: rgba(55,144,255,.17); color: #95deff; font-weight: 800; border: 1px solid rgba(108,185,255,.3); box-shadow: inset 0 0 30px rgba(55,144,255,.07); }
+.feature-status { padding: 7px 12px; border-radius: 999px; background: rgba(122,159,209,.15); color: #c5d8f1; font-size: 11px; font-weight: 800; }
+.feature-active { color: #91e8d5; background: rgba(38,178,144,.17); }
+.dashboard-action-button { display: inline-flex; align-items: center; gap: 8px; margin-top: 20px; padding: 0; background: transparent; box-shadow: none; border: 0; color: #8ed8ff; font-size: 14px; font-weight: 800; }
+.dashboard-action-button:hover:not(:disabled) { background: transparent; box-shadow: none; color: white; }
+
+/* Review page and workflow */
+.review-back-link { display: inline-block; margin-bottom: 12px; color: #87d7ff; font-size: 14px; font-weight: 700; }
+.review-summary { display: grid; grid-template-columns: repeat(5,minmax(0,1fr)); gap: 13px; margin: 21px 0; }
+.summary-card { padding: 19px; background: rgba(12,40,73,.86); min-width: 0; }
+.summary-card span { display: block; margin-bottom: 8px; color: #adc4df; font-size: 12px; }
+.summary-card strong { color: #f0f8ff; font-size: clamp(22px,2.5vw,31px); }
 .workflow-intro { margin-bottom: 22px; }
 .workflow-tabs { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 20px; }
-.workflow-tab { display: inline-flex; align-items: center; border: 1px solid #d7e0ed; background: #f8fafc; color: #1f4f82; border-radius: 8px; text-decoration: none; padding: 10px 14px; font-weight: 600; }
-.workflow-tab-active { border-color: #1f4f82; background: #eaf2fc; }
-.workflow-continue-link { display: inline-block; color: #fff; text-decoration: none; background: #1f4f82; font-weight: 700; padding: 12px 17px; border-radius: 8px; margin: 12px 0 20px; }
-.workflow-continue-link:hover { background: #163b61; }
+.workflow-tab, .workflow-continue-link { display: inline-flex; align-items: center; gap: 9px; text-decoration: none; padding: 11px 16px; border-radius: 11px; font-weight: 700; transition: transform .2s, border-color .2s, background .2s; }
+.workflow-tab { color: #bce6ff; background: rgba(31,93,162,.17); border: 1px solid rgba(103,182,252,.24); }
+.workflow-tab:hover { transform: translateY(-2px); border-color: rgba(105,208,255,.5); }
+.workflow-tab-active { color: white; background: rgba(51,132,232,.39); border-color: #61bdff; }
+.workflow-continue-link { margin: 13px 0 22px; color: white; background: linear-gradient(105deg,#207ddd,#635be4); }
 .workflow-message { margin: 0 0 20px; }
+.table-wrapper { overflow-x: auto; border-radius: 13px; }
+table { width: 100%; border-collapse: collapse; }
+th, td { text-align: left; padding: 13px; border-bottom: 1px solid rgba(126,188,252,.17); vertical-align: top; }
+th { background: rgba(70,122,185,.16); color: #b8dfff; font-size: 12px; white-space: nowrap; }
+td { color: #e5f1ff; }
+.claim-text { min-width: 240px; max-width: 440px; }
+.reason-text { min-width: 220px; max-width: 430px; }
+.correction-text { min-width: 200px; max-width: 350px; }
+.review-button { min-width: 110px; padding: 9px 13px; font-size: 13px; }
+.status-badge { display: inline-flex; align-items: center; padding: 6px 11px; border-radius: 999px; font-size: 11px; font-weight: 800; white-space: nowrap; border: 1px solid transparent; }
+.status-not-reviewed { background: rgba(152,165,194,.15); color: #c9d4e9; border-color: rgba(165,183,217,.17); }
+.status-likely-correct { background: rgba(38,194,143,.16); color: #8be4c5; border-color: rgba(74,219,169,.24); }
+.status-possible-error { background: rgba(242,79,111,.17); color: #ff9caa; border-color: rgba(241,90,115,.3); }
+.status-needs-review { background: rgba(238,164,58,.16); color: #ffda98; border-color: rgba(235,165,78,.3); }
+
+/* Citation cards and claim review: preserve component selectors across existing CSS */
+.claim-review-module { color: var(--ink); }
+.claim-review-toolbar { padding: 19px; background: rgba(14,42,75,.8); }
+.claim-review-toolbar label { color: #c6dcf4; }
+.claim-review-toolbar input, .claim-review-toolbar select { color: #eaf4ff; background: rgba(5,22,44,.87); border-color: rgba(104,184,250,.3); }
+.claim-review-count, .claim-review-meta, .claim-review-note { color: var(--muted); }
+.claim-review-card { padding: 22px; margin-bottom: 16px; background: rgba(10,32,61,.9); }
+.claim-review-original { border-left: 3px solid #53b7ff; border-radius: 6px; background: rgba(38,93,158,.17); color: #e6f5ff; padding: 13px 17px; }
+.claim-review-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 9px; }
+.claim-review-actions button { font-size: 12px; padding: 9px 12px; }
+.claim-review-actions button:not(:first-child) { background: rgba(19,50,83,.87); color: #d7e9ff; box-shadow: none; border-color: rgba(111,168,241,.3); }
+.claim-review-actions button:not(:first-child):hover:not(:disabled) { background: rgba(38,85,136,.92); }
+.claim-review-details, .claim-review-source { box-shadow: none; padding: 17px; background: rgba(11,37,70,.72); }
+.claim-review-details { margin-top: 17px; }
+.claim-review-details h4 { color: #8fcbff; }
+.claim-review-source { margin: 10px 0; border-radius: 13px; }
+.claim-review-source strong { color: #dfedff; }
+.claim-review-source p { color: #c4d6ed; line-height: 1.6; }
+.claim-review-edit { border: 1px solid rgba(115,181,255,.25); border-radius: 13px; background: rgba(31,73,121,.17); padding: 18px; margin-top: 15px; }
+.claim-review-edit textarea { background: #0a203d; }
+
+/* Readability / responsive */
+@media (max-width: 1100px) { .review-summary { grid-template-columns: repeat(3,minmax(0,1fr)); } }
+@media (max-width: 850px) { .dashboard-grid { grid-template-columns: 1fr; } .review-summary { grid-template-columns: repeat(2,minmax(0,1fr)); } .professor-header { padding: 18px 4%; } }
+@media (max-width: 640px) {
+  .professor-header { flex-direction: column; align-items: flex-start; }
+  .professor-header-actions { justify-content: space-between; width: 100%; }
+  .professor-content { width: calc(100% - 26px); margin: 18px auto 48px; }
+  .dashboard-tile { padding: 19px; }
+  .review-summary { gap: 8px; }
+  .summary-card { padding: 14px; }
+  .login-page { padding: 35px 14px; }
+  .login-card { border-radius: 17px; }
+  body::after { opacity: .19; }
+  .card, .claim-review-card { padding: 16px; }
+}
+@media (max-width: 420px) { .review-summary { grid-template-columns: 1fr 1fr; } .dashboard-welcome { padding: 20px; } }
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { animation-duration: .01ms !important; animation-iteration-count: 1 !important; transition-duration: .01ms !important; scroll-behavior: auto !important; }
+}
+@keyframes anatomyAmbient { from { background-position: 0 0, 0 0, 0 0, 0 0, 0 0, 0 0; } to { background-position: 35px -18px, -22px 16px, 18px 29px, 14px -12px, 0 0, 0 0; } }
+@keyframes anatomyOrbit { from { transform: rotate(0deg) scale(1); } to { transform: rotate(360deg) scale(1.07); } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+
+/* --- Readability fix for mixed legacy light cards and dark theme ---
+   Scoped to professor pages so the new login screen remains untouched.
+   These selectors intentionally outrank component-level light backgrounds. */
+.professor-page { color: #edf5ff; }
+.professor-page .card,
+.professor-page .claim-review-card,
+.professor-page .claim-review-toolbar,
+.professor-page .claim-review-details,
+.professor-page .claim-review-source,
+.professor-page .claim-review-edit {
+  background: #102846 !important;
+  color: #edf5ff !important;
+  border-color: rgba(122,185,247,.26) !important;
+}
+.professor-page .claim-review-card,
+.professor-page .claim-review-toolbar,
+.professor-page .claim-review-details,
+.professor-page .claim-review-source { box-shadow: 0 10px 26px rgba(0,6,21,.16); }
+.professor-page .claim-review-details,
+.professor-page .claim-review-source { background: #142e4d !important; }
+.professor-page .claim-review-original,
+.professor-page .file-info {
+  background: #173a61 !important;
+  color: #eef8ff !important;
+  border-color: #59bcff !important;
+}
+.professor-page .claim-review-module,
+.professor-page .claim-review-module p,
+.professor-page .claim-review-module label,
+.professor-page .claim-review-module strong,
+.professor-page .claim-review-module h3,
+.professor-page .claim-review-module h4,
+.professor-page .claim-review-module .claim-review-count,
+.professor-page .claim-review-module .claim-review-meta,
+.professor-page .claim-review-module .claim-review-note {
+  color: #e8f3ff;
+}
+.professor-page .claim-review-module .claim-review-meta,
+.professor-page .claim-review-module .claim-review-count,
+.professor-page .claim-review-module .claim-review-note { color: #b2c8e4; }
+.professor-page .claim-review-module .claim-review-details h4 { color: #87d5ff; }
+.professor-page .claim-review-module .claim-review-source p { color: #d4e5fa; }
+.professor-page .claim-review-module a { color: #88d8ff; }
+.professor-page .claim-review-module input,
+.professor-page .claim-review-module select,
+.professor-page .claim-review-module textarea {
+  background: #071b35 !important;
+  color: #f4faff !important;
+  border-color: rgba(144,199,253,.44) !important;
+}
+.professor-page .claim-review-module input::placeholder,
+.professor-page .claim-review-module textarea::placeholder { color: #a8bfde !important; }
+.professor-page .claim-review-module select option { background: #0a2240; color: #f5f9ff; }
+.professor-page .claim-review-actions button:not(:first-child),
+.professor-page .claim-review-details > button,
+.professor-page .claim-review-details button {
+  color: #f2f8ff;
+  background: #26476e;
+  border: 1px solid rgba(150,198,255,.36);
+}
+.professor-page .claim-review-actions button:first-child { color: #fff; }
+/* Bulk verification has its own component CSS and previously rendered a white panel. */
+.professor-page .card:has(button),
+.professor-page .card:has(input) { color: #f0f7ff; }
+.professor-page .card h2,
+.professor-page .card h3,
+.professor-page .card h4,
+.professor-page .card p,
+.professor-page .card span,
+.professor-page .card small,
+.professor-page .card label { color: #e3f1ff; }
+.professor-page .card p:where(.description),
+.professor-page .card small { color: #b8cce6; }
+/* Cover legacy bulk and toolbar wrappers even when component CSS loads after App.css. */
+.professor-page [class*="bulk-review"],
+.professor-page [class*="bulk-verification"] {
+  color: #eaf5ff;
+}
+.professor-page [class*="bulk-review"]:not(button):not(span),
+.professor-page [class*="bulk-verification"]:not(button):not(span) {
+  background-color: #122b4b;
+  border-color: rgba(135,191,249,.27);
+}
+.professor-page [class*="bulk-review"] p,
+.professor-page [class*="bulk-review"] h3,
+.professor-page [class*="bulk-review"] small,
+.professor-page [class*="bulk-verification"] p,
+.professor-page [class*="bulk-verification"] h3 { color: #e2efff; }
+@media (max-width: 640px) {
+  .professor-page .claim-review-card { padding: 16px; }
+  .professor-page .claim-review-actions { gap: 7px; }
+}
+
+
+/* BULK AI VERIFICATION — contrast repair
+   Component-level stylesheet previously created a white background with pale text.
+   Force a readable panel regardless of component CSS import order. */
+.professor-page :is(section, div, article)[class*="bulk" i]:not(:is(button, input)),
+.professor-page :is(section, div, article):has(> [class*="bulk" i]):not(.professor-content):not(.professor-page) {
+  background: #102846 !important;
+  background-image: none !important;
+  color: #edf5ff !important;
+  border-color: rgba(124, 190, 255, .32) !important;
+}
+.professor-page [class*="bulk" i] :is(h2,h3,h4,strong,label),
+.professor-page :is(section, div, article)[class*="bulk" i] > :is(h2,h3,h4,p,span,strong,label),
+.professor-page :is(section, div, article):has(> [class*="bulk" i]) > :is(h2,h3,h4,p,span,strong,label) {
+  color: #eef7ff !important;
+}
+.professor-page [class*="bulk" i] :is(p,small,span),
+.professor-page :is(section, div, article)[class*="bulk" i] :is(p,small,span) {
+  color: #c3d8f2 !important;
+}
+.professor-page [class*="bulk" i] button {
+  color: #fff !important;
+}
+.professor-page [class*="bulk" i] :is(progress, meter) {
+  accent-color: #54c5ff;
+}

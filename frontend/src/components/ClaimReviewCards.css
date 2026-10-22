@@ -1,16 +1,12 @@
-
-/* ==========================================
-   ASK INGLIS - CLAIM REVIEW CARDS
-   ========================================== */
+/* Ask Inglis — claim review cards: readable dark medical theme.
+   Visual-only update; keeps existing component class names and behavior. */
 
 .claim-review-module {
   width: 100%;
   min-width: 0;
   margin: 24px 0;
-  color: #18283e;
+  color: #eaf4ff;
 }
-
-/* Search and filter toolbar */
 
 .claim-review-toolbar {
   display: flex;
@@ -18,55 +14,54 @@
   align-items: flex-end;
   gap: 16px;
   padding: 20px;
-  background: #f8fafc;
-  border: 1px solid #e2e8f0;
+  background: #102746;
+  border: 1px solid #315578;
   border-radius: 14px;
 }
 
-.claim-review-search {
-  flex: 2 1 280px;
-}
-
-.claim-review-filter {
-  flex: 1 1 190px;
-}
+.claim-review-search { flex: 2 1 280px; }
+.claim-review-filter { flex: 1 1 190px; }
 
 .claim-review-search,
 .claim-review-filter {
   display: flex;
   flex-direction: column;
   gap: 8px;
+  color: #e6f3ff;
   font-size: 14px;
-  font-weight: 600;
+  font-weight: 650;
 }
 
 .claim-review-search input,
 .claim-review-filter select {
   width: 100%;
+  min-width: 0;
   min-height: 44px;
   padding: 10px 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #3a5d83;
   border-radius: 9px;
-  background: #ffffff;
-  color: #18283e;
+  background: #071a33;
+  color: #f3f9ff;
   font: inherit;
   box-sizing: border-box;
+  color-scheme: dark;
 }
 
-.claim-review-search input:focus,
-.claim-review-filter select:focus,
-.claim-review-edit textarea:focus {
-  border-color: #2563eb;
-  outline: 3px solid rgba(37, 99, 235, 0.12);
+.claim-review-search input::placeholder { color: #a7bfd9; opacity: 1; }
+
+.claim-review-search input:focus-visible,
+.claim-review-filter select:focus-visible,
+.claim-review-edit textarea:focus-visible {
+  border-color: #71cfff;
+  outline: 3px solid rgba(83, 190, 255, .25);
+  outline-offset: 1px;
 }
 
 .claim-review-count {
   margin: 16px 0;
-  color: #64748b;
+  color: #b5cbe2;
   font-size: 14px;
 }
-
-/* List and cards */
 
 .claim-review-list {
   display: flex;
@@ -77,16 +72,15 @@
 .claim-review-card {
   min-width: 0;
   padding: 22px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #102746;
+  color: #edf6ff;
+  border: 1px solid #315578;
   border-radius: 14px;
-  box-shadow: 0 3px 12px rgba(15, 23, 42, 0.04);
+  box-shadow: 0 8px 24px rgba(0, 7, 24, .12);
   overflow-wrap: anywhere;
 }
 
-.claim-review-card:hover {
-  border-color: #bfdbfe;
-}
+.claim-review-card:hover { border-color: #5884b4; }
 
 .claim-review-heading {
   display: flex;
@@ -99,13 +93,13 @@
 .claim-review-heading strong {
   display: block;
   font-size: 16px;
-  color: #0f172a;
+  color: #f3f9ff;
 }
 
 .claim-review-meta {
   display: block;
   margin-top: 5px;
-  color: #64748b;
+  color: #b4c9df;
   font-size: 12px;
 }
 
@@ -117,89 +111,109 @@
 }
 
 .claim-review-badges .status-badge,
-.claim-review-decision {
+.claim-review-badges .claim-review-decision {
   display: inline-flex;
   align-items: center;
   padding: 6px 10px;
-  font-size: 12px;
-  font-weight: 600;
   border-radius: 999px;
+  font-size: 12px;
+  font-weight: 750;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
-.claim-review-decision {
-  background: #f1f5f9;
-  color: #475569;
+/* The current JSX supplies only the decision text, not a decision-specific
+   class. Use a readable neutral badge for every decision until class names
+   are added in a later JSX change. Never use white text on a pale badge. */
+.claim-review-badges .claim-review-decision {
+  background: #dbe9fb;
+  color: #123250;
+  border: 1px solid #9fbad9;
+}
+
+/* Retain the existing AI status classes while making contrast explicit. */
+.claim-review-badges .status-not-reviewed {
+  background: #dbe4ef;
+  color: #25384f;
+  border: 1px solid #abbdd1;
+}
+.claim-review-badges .status-likely-correct {
+  background: #c9f6df;
+  color: #07583d;
+  border: 1px solid #79d4ac;
+}
+.claim-review-badges .status-possible-error {
+  background: #ffe0df;
+  color: #902d35;
+  border: 1px solid #ff9fa2;
+}
+.claim-review-badges .status-needs-review {
+  background: #ffebbe;
+  color: #784500;
+  border: 1px solid #e5b85e;
 }
 
 .claim-review-original {
   margin: 18px 0;
   padding: 16px;
-  background: #f8fafc;
-  border-left: 4px solid #2563eb;
+  background: #1b3b63;
+  color: #f0f8ff;
+  border-left: 4px solid #5ac5ff;
   border-radius: 8px;
   font-size: 15px;
   line-height: 1.7;
   white-space: pre-wrap;
 }
 
-/* Action buttons */
-
 .claim-review-actions {
   display: flex;
   flex-wrap: wrap;
-  gap: 10px;
   align-items: center;
+  gap: 10px;
 }
 
 .claim-review-actions button,
 .claim-review-details > button {
   min-height: 38px;
   padding: 9px 14px;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #53779e;
   border-radius: 8px;
-  background: #ffffff;
-  color: #1e293b;
+  background: #24476f;
+  color: #f2f8ff;
   font-size: 13px;
-  font-weight: 600;
+  font-weight: 650;
   cursor: pointer;
-  transition:
-    background 0.2s ease,
-    border-color 0.2s ease;
+  transition: background-color .15s ease, border-color .15s ease;
 }
 
 .claim-review-actions button:hover:not(:disabled),
 .claim-review-details > button:hover:not(:disabled) {
-  background: #eff6ff;
-  border-color: #93c5fd;
+  background: #305982;
+  border-color: #8bbce9;
+}
+
+.claim-review-actions button:first-child {
+  background: #2458df;
+  border-color: #366cf8;
+  color: #fff;
+}
+.claim-review-actions button:first-child:hover:not(:disabled) {
+  background: #356af3;
 }
 
 .claim-review-actions button:disabled,
 .claim-review-details > button:disabled {
-  opacity: 0.5;
+  opacity: .58;
   cursor: not-allowed;
 }
 
 .claim-review-actions button:focus-visible,
 .claim-review-details > button:focus-visible {
-  outline: 3px solid rgba(37, 99, 235, 0.3);
+  outline: 3px solid #84d5ff;
   outline-offset: 2px;
 }
 
-.claim-review-actions button:first-child {
-  background: #1d4ed8;
-  border-color: #1d4ed8;
-  color: #ffffff;
-}
-
-.claim-review-actions button:first-child:hover:not(:disabled) {
-  background: #1e40af;
-}
-
-.claim-review-details-btn {
-  margin-left: auto;
-}
-
-/* Manual editing */
+.claim-review-details-btn { margin-left: auto; }
 
 .claim-review-edit {
   display: flex;
@@ -207,123 +221,74 @@
   gap: 12px;
   margin-top: 20px;
   padding: 18px;
-  background: #f8fafc;
-  border: 1px solid #bfdbfe;
+  background: #0b213d;
+  border: 1px solid #4d779f;
   border-radius: 10px;
+  color: #eaf4ff;
 }
-
-.claim-review-edit label {
-  font-weight: 600;
-  font-size: 14px;
-}
-
+.claim-review-edit label { font-size: 14px; font-weight: 650; }
 .claim-review-edit textarea {
   width: 100%;
   min-height: 110px;
   padding: 12px;
   resize: vertical;
-  border: 1px solid #cbd5e1;
+  border: 1px solid #52789f;
   border-radius: 8px;
+  background: #071a33;
+  color: #f0f8ff;
   font: inherit;
   line-height: 1.6;
   box-sizing: border-box;
 }
-
-.claim-review-note {
-  margin: 0;
-  color: #64748b;
-  font-size: 12px;
-}
-
-/* BullsAI reasoning and sources */
+.claim-review-edit textarea::placeholder { color: #a2bcd5; }
+.claim-review-note { margin: 0; color: #b6cbe0; font-size: 12px; }
 
 .claim-review-details {
   margin-top: 20px;
   padding: 20px;
-  border-top: 1px solid #e2e8f0;
-  background: #fafcff;
+  border-top: 1px solid #3c6287;
+  background: #0b203a;
   border-radius: 10px;
+  color: #e9f4ff;
 }
-
 .claim-review-details h4 {
   margin: 18px 0 8px;
-  color: #1e3a8a;
+  color: #8edaff;
   font-size: 14px;
 }
-
-.claim-review-details h4:first-child {
-  margin-top: 0;
-}
-
+.claim-review-details h4:first-child { margin-top: 0; }
 .claim-review-details p {
   margin: 8px 0 14px;
+  color: #e5f1fd;
   font-size: 14px;
   line-height: 1.7;
   white-space: pre-wrap;
 }
-
 .claim-review-source {
   margin: 10px 0;
   padding: 14px;
-  background: #ffffff;
-  border: 1px solid #e2e8f0;
+  background: #142e4d;
+  color: #eaf4ff;
+  border: 1px solid #3a6087;
   border-radius: 8px;
 }
-
-.claim-review-source a {
-  color: #1d4ed8;
-  font-weight: 600;
-  text-decoration: underline;
-  overflow-wrap: anywhere;
-}
-
-.claim-review-source p {
-  margin-bottom: 0;
-}
-
-/* Responsive layout */
+.claim-review-source strong { color: #f3f9ff; }
+.claim-review-source a { color: #85d6ff; font-weight: 650; text-decoration: underline; overflow-wrap: anywhere; }
+.claim-review-source p { margin-bottom: 0; }
+.claim-review-source summary { color: #d9edff; cursor: pointer; }
 
 @media (max-width: 768px) {
-  .claim-review-toolbar {
-    flex-direction: column;
-    align-items: stretch;
-    padding: 14px;
-  }
-
-  .claim-review-search,
-  .claim-review-filter {
-    flex: initial;
-    width: 100%;
-  }
-
-  .claim-review-card {
-    padding: 16px;
-  }
-
-  .claim-review-heading {
-    flex-direction: column;
-  }
-
-  .claim-review-actions {
-    align-items: stretch;
-  }
-
-  .claim-review-actions button {
-    flex: 1 1 130px;
-  }
-
-  .claim-review-details-btn {
-    margin-left: 0;
-  }
-
-  .claim-review-details {
-    padding: 14px;
-  }
+  .claim-review-toolbar { flex-direction: column; align-items: stretch; padding: 14px; }
+  .claim-review-search, .claim-review-filter { flex: initial; width: 100%; }
+  .claim-review-card { padding: 16px; }
+  .claim-review-heading { flex-direction: column; }
+  .claim-review-actions { align-items: stretch; }
+  .claim-review-actions button { flex: 1 1 130px; }
+  .claim-review-details-btn { margin-left: 0; }
+  .claim-review-details { padding: 14px; }
 }
 
 @media (prefers-reduced-motion: reduce) {
   .claim-review-actions button,
-  .claim-review-details > button {
-    transition: none;
-  }
+  .claim-review-details > button { transition: none; }
 }

@@ -1,4 +1,3 @@
-
 import { useMemo, useState } from "react";
 import "./ClaimReviewCards.css";
 
@@ -12,6 +11,124 @@ const FILTERS = [
   { value: "rejected", label: "Rejected" },
   { value: "edited", label: "Edited" },
 ];
+
+const EVIDENCE_LABELS = {
+  direct_support: {
+    label: "Direct support",
+    background: "#dcfce7",
+    color: "#166534",
+  },
+  contradiction: {
+    label: "Contradiction",
+    background: "#fee2e2",
+    color: "#991b1b",
+  },
+  background_context: {
+    label: "Background context",
+    background: "#e2e8f0",
+    color: "#334155",
+  },
+  insufficient_evidence: {
+    label: "Insufficient evidence",
+    background: "#fef3c7",
+    color: "#92400e",
+  },
+};
+
+function EvidenceBadge({ quality }) {
+  const category = EVIDENCE_LABELS[quality];
+  const style = category || {
+    label: "Not classified",
+    background: "#f1f5f9",
+    color: "#475569",
+  };
+
+  return (
+    <span
+      title={
+        category
+          ? "AI-assessed evidence relationship; professor verification required"
+          : "This source has no saved evidence-quality classification"
+      }
+      style={{
+        display: "inline-flex",
+        alignItems: "center",
+        padding: "4px 9px",
+        borderRadius: "999px",
+        background: style.background,
+        color: style.color,
+        fontSize: "0.76rem",
+        fontWeight: 700,
+        whiteSpace: "nowrap",
+      }}
+    >
+      {style.label}
+    </span>
+  );
+}
+
+function EvidenceSource({ source, index }) {
+  const canOpen =
+    typeof source.url === "string" &&
+    /^https?:\/\//i.test(source.url);
+  const passage = source.passage_id;
+  const page = source.pdf_page;
+  const hasExcerpt = Boolean(source.evidence_text);
+
+  return (
+    <div className="claim-review-source">
+      <div
+        style={{
+          display: "flex",
+          flexWrap: "wrap",
+          alignItems: "center",
+          justifyContent: "space-between",
+          gap: "8px",
+          marginBottom: "8px",
+        }}
+      >
+        <div style={{ overflowWrap: "anywhere", minWidth: 0 }}>
+          {canOpen ? (
+            <a href={source.url} target="_blank" rel="noopener noreferrer">
+              {source.title || "Open source"}
+            </a>
+          ) : (
+            <strong>{source.title || `Reference source ${index + 1}`}</strong>
+          )}
+        </div>
+        <EvidenceBadge quality={source.evidence_quality} />
+      </div>
+
+      {(passage || page) && (
+        <p style={{ fontSize: "0.82rem", color: "#475569", margin: "4px 0 8px" }}>
+          {passage ? `Passage ${passage}` : ""}
+          {passage && page ? " · " : ""}
+          {page ? `PDF page ${page}` : ""}
+        </p>
+      )}
+
+      {hasExcerpt ? (
+        <details>
+          <summary
+            style={{
+              cursor: "pointer",
+              fontWeight: 600,
+              fontSize: "0.86rem",
+              padding: "4px 0",
+            }}
+          >
+            Read textbook evidence
+          </summary>
+          <p style={{ whiteSpace: "pre-wrap", overflowWrap: "anywhere" }}>
+            {source.evidence_text}
+          </p>
+        </details>
+      ) : (
+        <p style={{ color: "#64748b" }}>No passage excerpt saved.</p>
+      )}
+    </div>
+  );
+}
 
 export default function ClaimReviewCards({
   claims,
@@ -35,95 +152,62 @@ export default function ClaimReviewCards({
 
   const visible = useMemo(
     () =>
-      claims.filter((claim) => {
+      (claims || []).filter((claim) => {
         const text = [
           claim.text,
           claim.reason,
+          claim.ai_reason,
           claim.suggested_correction,
           String(claim.claim_number ?? ""),
           String(claim.page ?? ""),
         ]
+          .filter(Boolean)
           .join(" ")
           .toLowerCase();
 
-        if (!text.includes(query.trim().toLowerCase())) {
-          return false;
-        }
-
+        if (!text.includes(query.trim().toLowerCase())) return false;
         if (filter === "all") return true;
-
         if (filter === "pending") {
-          return (
-            !claim.instructor_decision ||
-            claim.instructor_decision === "pending"
-          );
+          return !claim.instructor_decision || claim.instructor_decision === "pending";
         }
-
         if (["accepted", "rejected", "edited"].includes(filter)) {
           return claim.instructor_decision === filter;
         }
-
         return claim.ai_status === filter;
       }),
     [claims, query, filter]
   );
 
-  const busy =
-    reviewingClaimId != null ||
-    savingDecisionClaimId != null;
+  const busy = reviewingClaimId != null || savingDecisionClaimId != null;
 
   function completeWithAI(claim) {
     if (!claim.suggested_correction?.trim()) {
       reviewClaimWithAI(claim.id);
-
-      setExpanded((old) => ({
-        ...old,
-        [claim.id]: true,
-      }));
-
+      setExpanded((old) => ({ ...old, [claim.id]: true }));
       return;
     }
-
     startEditingCorrection(claim);
     setEditCorrectionText(claim.suggested_correction);
-
-    setExpanded((old) => ({
-      ...old,
-      [claim.id]: true,
-    }));
+    setExpanded((old) => ({ ...old, [claim.id]: true }));
   }
 
   return (
     <div className="claim-review-module">
-      {/* Search and filters */}
       <div className="claim-review-toolbar">
         <label className="claim-review-search">
           <span>Search claims</span>
-
           <input
             type="search"
             placeholder="Anatomy term, claim or page..."
             value={query}
-            onChange={(event) =>
-              setQuery(event.target.value)
-            }
+            onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-
         <label className="claim-review-filter">
           <span>Filter by status</span>
-
-          <select
-            value={filter}
-            onChange={(event) =>
-              setFilter(event.target.value)
-            }
-          >
+          <select value={filter} onChange={(event) => setFilter(event.target.value)}>
             {FILTERS.map((item) => (
-              <option
-                key={item.value}
-                value={item.value}
-              >
+              <option key={item.value} value={item.value}>
                 {item.label}
               </option>
             ))}
@@ -132,69 +216,42 @@ export default function ClaimReviewCards({
       </div>
 
       <p className="claim-review-count">
-        Showing {visible.length} of {claims.length} claims
+        Showing {visible.length} of {(claims || []).length} claims
       </p>
 
-      {visible.length === 0 && (
-        <p>No claims match these filters.</p>
-      )}
+      {visible.length === 0 && <p>No claims match these filters.</p>}
 
-      {/* Claim cards */}
       <div className="claim-review-list">
         {visible.map((claim) => {
           const isExpanded = Boolean(expanded[claim.id]);
           const editing = editingClaimId === claim.id;
-
-          const sources = Array.isArray(claim.sources)
-            ? claim.sources
-            : [];
+          const sources = Array.isArray(claim.sources) ? claim.sources : [];
 
           return (
-            <article
-              className="claim-review-card"
-              key={claim.id}
-            >
-              {/* Claim heading */}
+            <article className="claim-review-card" key={claim.id}>
               <div className="claim-review-heading">
                 <div>
-                  <strong>
-                    Claim #{claim.claim_number ?? claim.id}
-                  </strong>
-
+                  <strong>Claim #{claim.claim_number ?? claim.id}</strong>
                   <span className="claim-review-meta">
                     Page {claim.page ?? "—"} · ID {claim.id}
                   </span>
                 </div>
-
                 <div className="claim-review-badges">
-                  <span
-                    className={`status-badge ${getAIStatusClass(
-                      claim.ai_status
-                    )}`}
-                  >
+                  <span className={`status-badge ${getAIStatusClass(claim.ai_status)}`}>
                     {formatAIStatus(claim.ai_status)}
                   </span>
-
                   <span className="claim-review-decision">
-                    {formatDecision(
-                      claim.instructor_decision
-                    )}
+                    {formatDecision(claim.instructor_decision)}
                   </span>
                 </div>
               </div>
 
-              {/* Original claim */}
-              <p className="claim-review-original">
-                {claim.text}
-              </p>
+              <p className="claim-review-original">{claim.text}</p>
 
-              {/* Professor actions */}
               <div className="claim-review-actions">
                 <button
                   type="button"
-                  onClick={() =>
-                    reviewClaimWithAI(claim.id)
-                  }
+                  onClick={() => reviewClaimWithAI(claim.id)}
                   disabled={busy}
                 >
                   {reviewingClaimId === claim.id
@@ -203,200 +260,118 @@ export default function ClaimReviewCards({
                       ? "Verify with BullsAI"
                       : "Review again"}
                 </button>
-
                 <button
                   type="button"
-                  onClick={() =>
-                    saveProfessorDecision(
-                      claim.id,
-                      "accepted"
-                    )
-                  }
+                  onClick={() => saveProfessorDecision(claim.id, "accepted")}
                   disabled={busy}
                 >
                   Accept
                 </button>
-
                 <button
                   type="button"
-                  onClick={() =>
-                    saveProfessorDecision(
-                      claim.id,
-                      "rejected"
-                    )
-                  }
+                  onClick={() => saveProfessorDecision(claim.id, "rejected")}
                   disabled={busy}
                 >
                   Reject
                 </button>
-
                 <button
                   type="button"
                   onClick={() => {
                     startEditingCorrection(claim);
-
-                    setExpanded((old) => ({
-                      ...old,
-                      [claim.id]: true,
-                    }));
+                    setExpanded((old) => ({ ...old, [claim.id]: true }));
                   }}
                   disabled={busy}
                 >
                   Edit manually
                 </button>
-
                 <button
                   type="button"
-                  onClick={() =>
-                    completeWithAI(claim)
-                  }
+                  onClick={() => completeWithAI(claim)}
                   disabled={busy}
                 >
                   Complete with AI
                 </button>
-
                 <button
                   type="button"
                   className="claim-review-details-btn"
                   aria-expanded={isExpanded}
                   onClick={() =>
-                    setExpanded((old) => ({
-                      ...old,
-                      [claim.id]: !isExpanded,
-                    }))
+                    setExpanded((old) => ({ ...old, [claim.id]: !isExpanded }))
                   }
                 >
-                  {isExpanded
-                    ? "Hide details"
-                    : "Show reasoning & sources"}
+                  {isExpanded ? "Hide details" : "Show reasoning & sources"}
                 </button>
               </div>
 
-              {savingDecisionClaimId === claim.id && (
-                <p>Saving decision...</p>
-              )}
+              {savingDecisionClaimId === claim.id && <p>Saving decision...</p>}
 
-              {/* Manual correction editor */}
               {editing && (
                 <div className="claim-review-edit">
                   <label htmlFor={`correction-${claim.id}`}>
                     Professor-approved correction
                   </label>
-
                   <textarea
                     id={`correction-${claim.id}`}
                     rows={4}
                     value={editCorrectionText}
-                    onChange={(event) =>
-                      setEditCorrectionText(
-                        event.target.value
-                      )
-                    }
+                    onChange={(event) => setEditCorrectionText(event.target.value)}
                     placeholder="Enter the corrected anatomy statement"
                   />
-
                   <p className="claim-review-note">
-                    AI draft text is not saved until
-                    you review and choose Save correction.
+                    AI draft text is not saved until you review and choose Save correction.
                   </p>
-
                   <div className="claim-review-actions">
                     <button
                       type="button"
-                      disabled={
-                        busy ||
-                        !editCorrectionText.trim()
-                      }
-                      onClick={() =>
-                        saveEditedCorrection(claim.id)
-                      }
+                      disabled={busy || !editCorrectionText.trim()}
+                      onClick={() => saveEditedCorrection(claim.id)}
                     >
                       Save correction
                     </button>
-
-                    <button
-                      type="button"
-                      disabled={busy}
-                      onClick={cancelEditing}
-                    >
+                    <button type="button" disabled={busy} onClick={cancelEditing}>
                       Cancel
                     </button>
                   </div>
                 </div>
               )}
 
-              {/* Expandable BullsAI assessment */}
               {isExpanded && (
                 <div className="claim-review-details">
                   <h4>BullsAI assessment</h4>
-
                   <p>
-                    {claim.reason &&
-                    claim.reason !== "—"
-                      ? claim.reason
-                      : "Not yet assessed."}
+                    {(claim.reason && claim.reason !== "—" ? claim.reason : null) ||
+                      (claim.ai_reason && claim.ai_reason !== "—" ? claim.ai_reason : null) ||
+                      "Not yet assessed."}
                   </p>
 
                   <h4>Suggested correction</h4>
-
-                  <p>
-                    {claim.suggested_correction ||
-                      "No correction suggested."}
-                  </p>
+                  <p>{claim.suggested_correction || "No correction suggested."}</p>
 
                   {claim.professor_correction && (
                     <>
-                      <h4>
-                        Professor's saved correction
-                      </h4>
-
-                      <p>
-                        {claim.professor_correction}
-                      </p>
+                      <h4>Professor's saved correction</h4>
+                      <p>{claim.professor_correction}</p>
                     </>
                   )}
 
                   <h4>Evidence sources</h4>
-
                   {sources.length ? (
-                    sources.map((source, index) => (
-                      <div
-                        key={source.id || index}
-                        className="claim-review-source"
-                      >
-                        {source.url?.startsWith(
-                          "https://"
-                        ) ||
-                        source.url?.startsWith(
-                          "http://"
-                        ) ? (
-                          <a
-                            href={source.url}
-                            target="_blank"
-                            rel="noreferrer"
-                          >
-                            {source.title ||
-                              "Open source"}
-                          </a>
-                        ) : (
-                          <strong>
-                            {source.title ||
-                              "Source without link"}
-                          </strong>
-                        )}
-
-                        {source.evidence_text && (
-                          <p>
-                            {source.evidence_text}
-                          </p>
-                        )}
-                      </div>
-                    ))
+                    <>
+                      <p className="claim-review-note">
+                        Evidence labels are generated by BullsAI and require professor verification.
+                        Older reviews may show “Not classified” until reviewed again.
+                      </p>
+                      {sources.map((source, index) => (
+                        <EvidenceSource
+                          key={source.id ?? source.passage_id ?? index}
+                          source={source}
+                          index={index}
+                        />
+                      ))}
+                    </>
                   ) : (
                     <p>
-                      No independently retrieved
-                      sources attached. This AI
-                      assessment is not
+                      No independently retrieved sources attached. This AI assessment is not
                       evidence-verified.
                     </p>
                   )}
@@ -404,12 +379,7 @@ export default function ClaimReviewCards({
                   <button
                     type="button"
                     disabled={busy}
-                    onClick={() =>
-                      saveProfessorDecision(
-                        claim.id,
-                        "needs_review"
-                      )
-                    }
+                    onClick={() => saveProfessorDecision(claim.id, "needs_review")}
                   >
                     Mark for further review
                   </button>

@@ -1,0 +1,141 @@
+/* Ask Inglis — Anatomy Ambient Theme
+   Additive visual layer. No API, router, form or application state changes.
+   Import AFTER App.css and component styles, e.g. in the app entry point.
+*/
+:root {
+  color-scheme: dark;
+  --an-ink: #eaf5ff;
+  --an-muted: #aabed4;
+  --an-deep: #061223;
+  --an-surface: rgba(11, 29, 53, .82);
+  --an-border: rgba(121, 186, 244, .2);
+  --an-blue: #40b7ff;
+  --an-violet: #907cff;
+  --an-green: #51dbba;
+  --an-radius: 18px;
+  --an-shadow: 0 22px 70px rgba(0, 8, 21, .38);
+  font-family: Inter, ui-sans-serif, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+}
+html { background: var(--an-deep); }
+body { color: var(--an-ink); background: var(--an-deep); overflow-x: hidden; }
+#root { position: relative; isolation: isolate; min-height: 100vh; }
+/* The background is ambient and never blocks mouse/keyboard interaction. */
+#root::before {
+  content: ""; position: fixed; inset: 0; z-index: -2; pointer-events: none;
+  background:
+    radial-gradient(ellipse 45% 42% at 13% 22%, rgba(22, 108, 175, .3), transparent 80%),
+    radial-gradient(ellipse 35% 48% at 92% 32%, rgba(93, 51, 160, .22), transparent 82%),
+    radial-gradient(ellipse 45% 40% at 60% 92%, rgba(5, 132, 172, .14), transparent 80%),
+    linear-gradient(140deg, #04101e 0%, #081a2d 56%, #071325 100%);
+}
+#root::after {
+  content: ""; position: fixed; inset: 0; z-index: -1; pointer-events: none; opacity: .42;
+  background-image:
+    radial-gradient(circle, rgba(96, 193, 255, .33) 1px, transparent 1.5px),
+    linear-gradient(rgba(75, 151, 221, .045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(75, 151, 221, .045) 1px, transparent 1px);
+  background-size: 93px 97px, 64px 64px, 64px 64px;
+  mask-image: linear-gradient(to bottom, #000, rgba(0,0,0,.4));
+  animation: an-drift 34s linear infinite alternate;
+}
+@keyframes an-drift { from { transform: translate3d(0,0,0); } to { transform: translate3d(-19px, 23px, 0); } }
+@keyframes an-appear { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+@keyframes an-glow { 0%,100% { box-shadow: 0 0 0 rgba(69,188,255,0); } 50% { box-shadow: 0 0 25px rgba(69,188,255,.14); } }
+::selection { background: rgba(63,183,255,.33); color: white; }
+:focus-visible { outline: 2px solid var(--an-blue) !important; outline-offset: 3px; }
+h1,h2,h3,h4 { color: #f2f9ff; letter-spacing: -.027em; }
+p { line-height: 1.65; }
+a { color: #83d9ff; }
+a:hover { color: #c8efff; }
+button,input,textarea,select { font: inherit; }
+button { cursor: pointer; }
+button:disabled { cursor: not-allowed; }
+button:not(:disabled) { transition: background-color .22s ease, color .22s ease, transform .22s ease, box-shadow .22s ease, border-color .22s ease; }
+button:not(:disabled):hover { transform: translateY(-2px); box-shadow: 0 8px 24px rgba(17, 118, 224, .22); }
+button:not(:disabled):active { transform: translateY(0); }
+input,textarea,select { min-width: 0; max-width: 100%; }
+input:not([type="checkbox"]):not([type="radio"]),textarea,select {
+  color: #ebf7ff; background: rgba(5, 18, 35, .78); border: 1px solid rgba(129, 186, 243, .3);
+  border-radius: 11px; padding: 11px 13px; box-shadow: inset 0 1px 1px rgba(0,0,0,.12);
+}
+input::placeholder,textarea::placeholder { color: #8ca7c5; opacity: 1; }
+input:focus,textarea:focus,select:focus { border-color: #6fc7fa; outline: 2px solid rgba(68, 175, 255, .24); outline-offset: 1px; }
+option { color: #0d2540; background: #edf7ff; }
+.login-page, .professor-page, .lecture-page, .review-page { background: transparent !important; min-height: 100vh; }
+.login-page { position: relative; padding: clamp(20px, 4vw, 56px); }
+.login-page::before {
+  content: "ANATOMY  /  INTELLIGENCE"; position: absolute; left: max(5vw, 22px); top: 5vh;
+  color: rgba(140, 209, 255, .58); font-size: .7rem; letter-spacing: .3em; font-weight: 800;
+  pointer-events: none;
+}
+.login-card,.card,.dashboard-tile,.dashboard-welcome,.claim-review-card,
+.claim-review-toolbar,.claim-review-details,.claim-review-edit {
+  background: var(--an-surface) !important;
+  border: 1px solid var(--an-border) !important;
+  border-radius: var(--an-radius) !important;
+  box-shadow: var(--an-shadow);
+  backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px);
+}
+.login-card { width: min(490px, 100%); padding: clamp(24px, 4vw, 44px); animation: an-appear .6s both; }
+.login-card h1 { font-size: clamp(2rem, 4vw, 2.7rem); }
+.login-card > p:not(.login-eyebrow),.description,.dashboard-tile p,
+.dashboard-welcome p:last-child,.professor-header p,.professor-header-actions span,
+.claim-review-meta,.claim-review-count,.claim-review-note { color: var(--an-muted) !important; }
+.login-eyebrow,.dashboard-eyebrow { color: #79d7ff !important; text-transform: uppercase; letter-spacing: .15em; }
+.login-card label,.claim-review-edit label { color: #d9edff; }
+.login-card input { width: 100%; }
+.professor-header { background: rgba(5, 17, 34, .78) !important; border-bottom: 1px solid var(--an-border) !important; backdrop-filter: blur(20px); }
+.professor-header h1 { font-size: clamp(1.5rem, 3vw, 2.2rem); }
+.professor-content { width: min(1260px, 94%); }
+.dashboard-welcome { position: relative; overflow: hidden; padding: clamp(26px, 4vw, 46px); }
+.dashboard-welcome::after { content: "✦"; position: absolute; right: 5%; top: -26%; font-size: 16rem; color: rgba(97,195,255,.09); pointer-events: none; }
+.dashboard-tile { position: relative; overflow: hidden; padding: clamp(20px, 3vw, 28px); }
+.dashboard-tile::before { content:""; position:absolute; width: 180px; height:180px; top:-120px; right:-90px; border: 1px solid rgba(104,201,255,.26); border-radius:50%; box-shadow: 0 0 0 32px rgba(77,174,255,.035),0 0 0 68px rgba(77,174,255,.025); pointer-events: none; }
+.dashboard-tile:hover { border-color: rgba(105,205,255,.55) !important; transform: translateY(-4px); box-shadow: 0 28px 75px rgba(0,8,21,.44); }
+.dashboard-grid { gap: 22px; }
+.card,.claim-review-card { color: var(--an-ink); }
+.card,.dashboard-welcome,.dashboard-tile,.claim-review-card { animation: an-appear .5s ease both; }
+.card h2,.dashboard-tile h3 { color: #edf8ff; }
+button,.dashboard-action-button { background: linear-gradient(110deg, #147ee4, #6556e9); color: #fff; border: 1px solid rgba(172,220,255,.22); border-radius: 10px; font-weight: 700; }
+button:hover:not(:disabled),.dashboard-action-button:hover { background: linear-gradient(110deg, #2098fa, #796afa); }
+.message,.login-message,.file-info { color: #d9edff; background: rgba(18, 67, 106, .35); border: 1px solid var(--an-border); border-radius: 12px; }
+.claim-review-toolbar { padding: 16px 18px; }
+.claim-review-toolbar label { color: #dcefff; }
+.claim-review-list { gap: 16px; }
+.claim-review-card { overflow: hidden; }
+.claim-review-original { color: #f2f8ff; border-left: 3px solid #4d9cff; border-radius: 8px; background: rgba(64,132,197,.13); padding: 15px; }
+.claim-review-heading strong { color: #f0f9ff; }
+.claim-review-details { background: rgba(4,19,36,.48) !important; box-shadow: none; }
+.claim-review-details p,.claim-review-edit p { color: #d0e2f6; }
+.claim-review-source { background: rgba(16, 45, 74, .55); border: 1px solid rgba(125,191,240,.2); border-radius: 12px; padding: 13px; margin: 10px 0; }
+.claim-review-source strong { color: #e7f5ff; }
+.claim-review-actions button,.claim-review-details > button { background: rgba(28, 61, 97, .85); border: 1px solid rgba(134,185,241,.34); color: #e6f4ff; }
+.claim-review-actions button:first-child { background: linear-gradient(110deg,#0b86dd,#5262e6); }
+.claim-review-actions button:hover:not(:disabled),.claim-review-details > button:hover:not(:disabled) { background: rgba(47, 92, 143, .94); }
+.claim-review-decision { color: #dceaff; background: rgba(115,157,202,.2); }
+.claim-review-count { margin-block: 12px 18px; }
+.claim-review-details-btn { margin-left: auto; }
+.status-badge { border: 1px solid rgba(146,207,244,.2); }
+/* Existing apps may include miscellaneous light-background classes. */
+[role="alert"] { border-radius: 12px; }
+@media (max-width: 900px) { .dashboard-grid { grid-template-columns: 1fr; } .professor-header { flex-wrap: wrap; } }
+@media (max-width: 640px) {
+  .login-page { padding: 68px 16px 22px; }
+  .login-card { padding: 24px 20px; }
+  .professor-header { padding: 18px 4%; }
+  .professor-content { width: 94%; margin-top: 18px; }
+  .dashboard-welcome { padding: 22px; }
+  .claim-review-toolbar { padding: 14px; }
+  .claim-review-card { padding: 14px !important; }
+  .claim-review-actions { gap: 7px; }
+  .claim-review-actions button { flex: 1 1 auto; }
+  .claim-review-details-btn { margin-left: 0; }
+}
+@media (prefers-reduced-motion: reduce) {
+  #root::after { animation: none; }
+  .card,.login-card,.dashboard-welcome,.dashboard-tile,.claim-review-card { animation: none; }
+  button,.dashboard-tile { transition-duration: .01ms !important; }
+}
+@media (prefers-reduced-transparency: reduce) {
+  .login-card,.card,.dashboard-tile,.dashboard-welcome,.claim-review-card,.claim-review-toolbar,.claim-review-details,.claim-review-edit { backdrop-filter: none; background: #10243d !important; }
+}
