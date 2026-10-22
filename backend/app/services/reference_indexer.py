@@ -188,6 +188,76 @@ def index_reference_pdf(
     }
 
 
+# Anatomical term equivalences are used ONLY for finding candidate passages.
+# They never establish that a claim is true or false.
+_SEARCH_ALIASES = {
+    "atlas": ("c1", "first cervical", "first cervical vertebra"),
+    "axis": ("c2", "second cervical", "second cervical vertebra"),
+    "c1": ("atlas", "first cervical"),
+    "c2": ("axis", "second cervical"),
+    "vertebra": ("vertebrae", "vertebral"),
+    "vertebrae": ("vertebra", "vertebral"),
+    "intervertebral": ("disc", "disk"),
+    "disc": ("disk", "intervertebral"),
+    "disk": ("disc", "intervertebral"),
+}
+_SEARCH_STOPWORDS = {
+    "the", "and", "are", "was", "were", "with", "from", "that", "this",
+    "into", "such", "they", "their", "there", "which", "through", "between",
+    "have", "has", "had", "can", "not", "does", "about", "involved",
+    "participate", "participates", "is", "as", "of", "to", "in", "on", "a",
+    "an", "or", "at", "by", "for", "it", "its", "be", "part", "parts",
+    "first", "second",  # handled by multiword phrases and alias expansion
+}
+
+
+def _search_tokens(query: str) -> list[str]:
+    """Select informative tokens, including C1/C2 (which are only 2 chars)."""
+    tokens = re.findall(r"[\w]+", query.lower(), flags=re.UNICODE)
+    return list(dict.fromkeys(
+        token for token in tokens
+        if (len(token) >= 3 or re.fullmatch(r"c[1-7]", token))
+        and token not in _SEARCH_STOPWORDS
+    ))[:12]
+
+
+def _search_phrases(query: str, tokens: list[str]) -> list[str]:
+    phrases = list(tokens)
+    for token in tokens:
+        phrases.extend(_SEARCH_ALIASES.get(token, ()))
+    lower = query.lower()
+    if "first cervical" in lower:
+        phrases.extend(("atlas", "c1", "first cervical"))
+    if "second cervical" in lower:
+        phrases.extend(("axis", "c2", "second cervical"))
+    return list(dict.fromkeys(phrases))[:32]
+
+
+def _fts_phrase(term: str) -> str:
+    """Quote every term so user input cannot become FTS query syntax."""
+    return '"' + term.replace('"', '""') + '"'
+
+
+def _relevance_score(passage: str, tokens: list[str], phrases: list[str]) -> float:
+    """Rank candidate text, but never interpret ranking as factual support."""
+    lower = passage.lower()
+    words = set(re.findall(r"[\w]+", lower, flags=re.UNICODE))
+    matching_tokens = sum(token in words for token in tokens)
+    score = 8.0 * matching_tokens / max(len(tokens), 1)
+    # A passage matching multiple distinct claim concepts is preferable to a
+    # general passage which repeats just one common term many times.
+    if len(tokens) > 1:
+        score += 4.0 * matching_tokens / len(tokens)
+    for phrase in phrases:
+        if " " in phrase and phrase in lower:
+            score += 1.0
+    # Identity passages mentioning BOTH terms may be unusually useful when
+    # distinguishing the atlas from the axis. This is retrieval ranking only.
+    if {"atlas", "axis"}.issubset(set(tokens)) and {"atlas", "axis"}.issubset(words):
+        score += 2.0
+    return score
+
+
 def search_reference_passages(
     *,
     professor_id: int,
@@ -195,16 +265,25 @@ def search_reference_passages(
     limit: int = 5,
     db_path: Path = INDEX_DB_PATH,
 ) -> list[dict]:
-    """Return actual indexed passages with page citations (no fabricated sources)."""
-    if professor_id <= 0:
+    """Search only this professor's indexed PDF text, returning real citations.
+
+    Retrieves a wider FTS candidate pool, then reranks by coverage of claim
+    concepts and anatomy synonyms. Synonyms improve retrieval but are never
+    shown as evidence and never used to assert correctness. All returned text
+    is taken verbatim from the indexed PDF. Existing FTS schema is unchanged.
+    """
+    if not isinstance(professor_id, int) or professor_id <= 0:
         raise ValueError("professor_id must be positive")
-    terms = re.findall(r"[\w]+", query, flags=re.UNICODE)
-    terms = [term for term in terms if len(term) >= 3][:12]
-    if not terms:
+    if not isinstance(query, str):
+        raise ValueError("query must be a string")
+    tokens = _search_tokens(query)
+    if not tokens:
         return []
+    phrases = _search_phrases(query, tokens)
+    match_query = " OR ".join(_fts_phrase(item) for item in phrases)
+    result_limit = max(1, min(limit, 20))
+    candidate_limit = min(250, max(80, result_limit * 15))
     initialize_reference_index(db_path)
-    # Quoted tokens prevent FTS syntax injection. OR is tolerant of anatomy prose.
-    match_query = " OR ".join('"' + term.replace('"', '""') + '"' for term in terms)
     with _connect(db_path) as db:
         rows = db.execute(
             """SELECT c.id, c.reference_id, c.page_number, c.chunk_number,
@@ -213,10 +292,23 @@ def search_reference_passages(
                FROM reference_chunks_fts
                JOIN reference_chunks c ON c.id = reference_chunks_fts.rowid
                JOIN indexed_references r ON r.reference_id = c.reference_id
-               WHERE reference_chunks_fts MATCH ? AND c.professor_id = ?
+               WHERE reference_chunks_fts MATCH ?
+                 AND c.professor_id = ?
+                 AND r.professor_id = ?
                ORDER BY rank LIMIT ?""",
-            (match_query, professor_id, max(1, min(limit, 20))),
+            (match_query, professor_id, professor_id, candidate_limit),
         ).fetchall()
+
+    # Primarily rank by coverage of the claim's original concepts; use FTS
+    # rank as a tie-breaker. This cannot guarantee a relevant source exists.
+    ranked = sorted(
+        rows,
+        key=lambda row: (
+            -_relevance_score(row["passage"], tokens, phrases),
+            row["rank"],
+            row["id"],
+        ),
+    )
     return [
         {
             "passage_id": f"PDF-{row['id']}",
@@ -227,7 +319,7 @@ def search_reference_passages(
             "chunk_number": row["chunk_number"],
             "evidence_text": row["passage"],
         }
-        for row in rows
+        for row in ranked[:result_limit]
     ]
 
 
