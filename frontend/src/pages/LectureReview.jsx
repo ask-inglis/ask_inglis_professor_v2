@@ -16,6 +16,68 @@ const BACKEND_URL =
   "http://127.0.0.1:8000";
 
 
+const lectureStyles = `
+.lecture-workspace { color: #eaf3ff; min-height: 100vh; background: #06152a; }
+.lecture-workspace * { box-sizing: border-box; }
+.lecture-topbar { padding: 16px clamp(18px,5vw,70px); background: rgba(5,20,42,.92); border-bottom: 1px solid #234366; }
+.lecture-topbar-inner { width: min(1180px,100%); margin: auto; display: flex; align-items: center; justify-content: space-between; gap: 20px; }
+.lecture-logo { display: flex; align-items: center; gap: 11px; color: #eef7ff; text-decoration: none; }
+.lecture-logo-icon { width: 42px; height: 42px; display: grid; place-items: center; color: #8bddff; background: #103356; border: 1px solid #3b709c; border-radius: 12px; font-size: 25px; }
+.lecture-logo strong,.lecture-logo small { display:block; } .lecture-logo strong { font-size: 17px; } .lecture-logo em { font-style: normal; color: #77d5ff; } .lecture-logo small { color: #9dbbd7; font-size: 12px; margin-top: 3px; }
+.lecture-back { color: #a8d9ff; text-decoration:none; border:1px solid #2b537b; padding:11px 15px; border-radius:10px; font-weight:700; }
+.lecture-back:hover { color:#fff; background:#163957; }
+.lecture-content { width: min(1180px,calc(100% - 36px)); margin: 28px auto 80px; }
+.lecture-hero { position: relative; isolation: isolate; min-height: 282px; display: flex; align-items:center; padding: clamp(26px,4vw,48px); border-radius:24px; border:1px solid #254e78; overflow:hidden; background: linear-gradient(110deg,#102e50 0%,#0c2444 64%,#0a1c38 100%); }
+.lecture-hero-copy { width: min(720px,75%); position:relative; z-index: 1; }
+.lecture-kicker { font-size: 11px; letter-spacing: .16em; font-weight: 800; color:#81daff; margin:0 0 12px; }
+.lecture-hero h1 { color:#f2f8ff; font-size:clamp(30px,3.7vw,48px); letter-spacing:-.04em; line-height:1.13; margin:0 0 14px; }
+.lecture-hero-copy > p:not(.lecture-kicker) { color:#c4d8ef; max-width:570px; line-height:1.65; margin:0 0 20px; }
+.lecture-hero-tags { display:flex; gap:9px; flex-wrap:wrap; }
+.lecture-hero-tags span { border:1px solid #315c82; background:rgba(10,29,54,.75); padding:6px 10px; border-radius:30px; font-size:12px; color:#c7e4f8; }
+.lecture-hero-art { position:absolute; width:300px; height:100%; right:0; top:0; object-fit:cover; object-position:center 26%; opacity:.73; -webkit-mask-image:linear-gradient(90deg,transparent,#000 44%); mask-image:linear-gradient(90deg,transparent,#000 44%); }
+.lecture-steps { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:13px; margin:20px 0 28px; }
+.lecture-step { display:flex; align-items:center; gap:12px; text-decoration:none; padding:17px; border-radius:14px; background:#102844; border:1px solid #24496e; color:#ddeafb; min-width:0; }
+.lecture-step-current { border-color:#64c6ff; background:#143a5c; box-shadow:inset 0 0 0 1px rgba(90,196,255,.12); }
+.lecture-step-number { flex:0 0 auto; display:grid; place-items:center; width:38px; height:38px; border-radius:11px; background:#164874; color:#86dbff; font-weight:800; }
+.lecture-step strong,.lecture-step small { display:block; } .lecture-step strong { font-size:14px; } .lecture-step small { margin-top:4px; font-size:11px; color:#a7bdd5; }
+.lecture-step-planned { opacity:.69; }
+.lecture-panel { margin:22px 0; padding:clamp(20px,3vw,30px); border-radius:19px; border:1px solid #25496e; background:linear-gradient(135deg,#102843,#0b213c); box-shadow:0 14px 35px rgba(0,0,0,.13); color:#e9f3ff; }
+.lecture-section-heading { display:flex; justify-content:space-between; align-items:center; gap:20px; margin-bottom:20px; }
+.lecture-section-heading h2,.lecture-selected h2,.lecture-empty-selection h2 { color:#f0f7ff; margin:0 0 8px; font-size:clamp(20px,2.4vw,26px); letter-spacing:-.025em; }
+.lecture-section-heading p:not(.lecture-kicker),.lecture-selected p:not(.lecture-kicker),.lecture-empty-selection p { margin:0; color:#abc3dd; line-height:1.65; font-size:14px; }
+.lecture-section-icon { display:grid; place-items:center; border:1px solid #3c77a7; border-radius:15px; height:53px; width:53px; font-size:30px; color:#8ee3ff; flex:0 0 auto; }
+.lecture-dropzone { display:flex; flex-direction:column; gap:9px; align-items:center; justify-content:center; min-height:212px; border:2px dashed #386a99; border-radius:15px; background:#0a1f39; padding:25px; cursor:pointer; text-align:center; }
+.lecture-dropzone:hover { border-color:#73d4ff; background:#0c2949; }
+.lecture-dropzone strong { font-size:17px; color:#f0f7ff; overflow-wrap:anywhere; }.lecture-dropzone span:not(.lecture-drop-icon) { color:#a8c1db; font-size:13px; }
+.lecture-drop-icon { display:grid; place-items:center; width:55px; height:55px; border-radius:50%; background:#164f81; color:#92ddff; font-size:32px; }
+.lecture-dropzone input { display:block; max-width:100%; margin-top:11px; color:#bbd4ec; font-size:13px; }
+.lecture-action-bar { display:flex; gap:12px; flex-wrap:wrap; margin-top:19px; }.lecture-action-bar button { background:#183d63; border:1px solid #3b6995; color:#f2f8ff; padding:12px 18px; border-radius:10px; cursor:pointer; font-weight:750; }.lecture-action-bar .lecture-primary-action { border-color:#3678ed; background:linear-gradient(105deg,#176cc7,#5c5de8); }.lecture-action-bar button:disabled { opacity:.46; cursor:not-allowed; }
+.lecture-fineprint { font-size:12px; color:#91abc6; margin:14px 0 0; }
+.lecture-processing { display:flex; align-items:center; gap:12px; margin-top:15px; padding:15px; border-radius:11px; border:1px solid #39789c; background:#103c58; color:#c8edff; }
+.lecture-progress-spinner { display:inline-block; width:19px; height:19px; border-radius:50%; border:3px solid #37688a; border-top-color:#83dfff; animation:lecture-spin .9s linear infinite; }
+@keyframes lecture-spin { to { transform:rotate(360deg); } }
+.lecture-outline-button { background:#153a5e; border:1px solid #3e719a; color:#dcefff; padding:10px 15px; border-radius:9px; white-space:nowrap; font-weight:700; cursor:pointer; }
+.lecture-empty { padding:22px; border-radius:12px; border:1px dashed #355779; background:#0a1e35; color:#b4cbe2; }
+.lecture-table-wrap { width:100%; overflow-x:auto; border-radius:12px; border:1px solid #2b4c6d; }
+.lecture-table { width:100%; border-collapse:collapse; background:#0d233d; color:#d9eaff; min-width:680px; }
+.lecture-table th { text-align:left; background:#163454; color:#a9d9f5; font-size:12px; letter-spacing:.025em; padding:15px; }
+.lecture-table td { padding:15px; border-top:1px solid #244563; font-size:13px; vertical-align:middle; }
+.lecture-table tbody tr:hover { background:#123051; }.lecture-id { color:#91d9ff; font-weight:800; }.lecture-filename { overflow-wrap:anywhere; max-width:500px; }
+.lecture-table-actions { display:flex; gap:8px; flex-wrap:wrap; }.lecture-table-actions button { padding:8px 12px; background:#1c4c78; border:1px solid #376e9c; color:#fff; border-radius:8px; font-weight:700; cursor:pointer; }.lecture-table-actions button.lecture-delete { background:#402235; border-color:#804157; color:#ffced7; }.lecture-table-actions button:disabled { opacity:.45; cursor:wait; }
+.lecture-extracted-text { width:100%; background:#071a31; color:#e2efff; border:1px solid #2e5479; border-radius:12px; padding:17px; line-height:1.65; }
+.lecture-selected { display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:22px; border-color:#3279a2; }
+.lecture-continue { display:inline-flex; align-items:center; text-decoration:none; color:white; background:linear-gradient(110deg,#116dbd,#5756d8); padding:13px 17px; border-radius:9px; font-weight:750; font-size:13px; }.lecture-continue-bottom { margin-top:18px; }
+.lecture-stat-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:12px; margin:0 0 20px; }
+.lecture-stat-grid .summary-card { background:#0b233e; border:1px solid #305678; border-radius:12px; padding:15px; }
+.lecture-stat-grid .summary-card span { display:block; color:#a9c5df; font-size:12px; }
+.lecture-stat-grid .summary-card strong { display:block; margin-top:7px; font-size:28px; color:#e6f7ff; }
+.lecture-alert { margin:18px 0; padding:15px 18px; border:1px solid #43809e; background:#103c57; color:#ddf4ff; border-radius:12px; }
+.lecture-workspace button:focus-visible,.lecture-workspace a:focus-visible,.lecture-workspace input:focus-visible { outline:3px solid #8edfff; outline-offset:3px; }
+@media(max-width:850px) { .lecture-steps { grid-template-columns:1fr; }.lecture-hero-art { opacity:.28; width:60%; }.lecture-hero-copy { width:100%; }.lecture-content { width:calc(100% - 28px); } }
+@media(max-width:600px) { .lecture-topbar-inner { align-items:flex-start; }.lecture-back { font-size:12px; }.lecture-hero { padding:24px; }.lecture-panel { padding:18px; }.lecture-stat-grid { grid-template-columns:repeat(2,minmax(0,1fr)); }.lecture-section-heading { align-items:flex-start; flex-direction:column; }.lecture-action-bar button { width:100%; }.lecture-step { padding:13px; } }
+@media(prefers-reduced-motion:reduce) { .lecture-progress-spinner { animation:none; } }
+`;
+
 function LectureReview({ mode = "documents" }) {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
@@ -1176,705 +1238,171 @@ function LectureReview({ mode = "documents" }) {
   // -------------------------------------------------------
 
   return (
-    <div className="professor-page">
-
-      <header className="professor-header">
-
-        <div>
-
-          <Link
-            to="/professor"
-            className="review-back-link"
-          >
-            ← Professor Dashboard
+    <div className="professor-page lecture-workspace">
+      <style>{lectureStyles}</style>
+      <header className="professor-header lecture-topbar">
+        <div className="lecture-topbar-inner">
+          <Link to="/professor" className="lecture-logo" aria-label="Back to professor dashboard">
+            <span className="lecture-logo-icon" aria-hidden="true">✧</span>
+            <span><strong>Ask Inglis <em>Anatomy AI</em></strong><small>Professor workspace</small></span>
           </Link>
-
-          <h1>
-            {isAIReview ? "AI Verification & Professor Decisions" : "Documents & Claim Extraction"}
-          </h1>
-
-          <p>
-            Human Anatomy
-          </p>
-
+          <Link to="/professor" className="lecture-back">← Dashboard</Link>
         </div>
-
       </header>
 
-
-      <main className="professor-content">
-
-        <section className="card workflow-intro">
-          <p className="dashboard-eyebrow">
-            {isAIReview ? "STAGE 2 OF 2" : "STAGE 1 OF 2"}
-          </p>
-          <h2>
-            {isAIReview ? "Verify saved claims" : "Prepare lecture material"}
-          </h2>
-          <p className="description">
-            {isAIReview
-              ? "Choose a lecture that has already been processed. Run BullsAI assessments and record professor decisions. No need to upload the file again."
-              : "Upload a PDF or DOCX, extract text, and save claims. When your claims are ready, continue to AI verification."}
-          </p>
-          <div className="workflow-tabs">
-            <Link
-              className={`workflow-tab ${!isAIReview ? "workflow-tab-active" : ""}`}
-              to="/professor/documents"
-            >
-              1. Documents & Extraction
-            </Link>
-            <Link
-              className={`workflow-tab ${isAIReview ? "workflow-tab-active" : ""}`}
-              to="/professor/ai-review"
-            >
-              2. AI Verification & Decisions
-            </Link>
-          </div>
-        </section>
-
-        {message && (
-          <div className="message workflow-message" role="status">
-            {message}
-          </div>
-        )}
-
-        {/* ============================================= */}
-        {/* SAVED DOCUMENTS */}
-        {/* ============================================= */}
-
-        <section className="card">
-
-          <h2>
-            Saved Lecture Documents
-          </h2>
-
-          <p className="description">
-            {isAIReview
-              ? "Select a processed lecture to review its saved claims."
-              : "Reopen a previously processed lecture, preview its claims, or delete an outdated document."}
-          </p>
-
-
-          <div className="actions">
-
-            <button
-              onClick={
-                loadSavedDocuments
-              }
-
-              disabled={
-                loadingDocuments
-              }
-            >
-              {loadingDocuments
-                ? "Loading..."
-                : "Refresh Documents"}
-            </button>
-
-          </div>
-
-
-          {savedDocuments.length ===
-          0 ? (
-
-            <p className="description">
-              {isAIReview
-                ? "No processed lectures found. Upload and extract claims from a lecture first."
-                : "No saved lecture documents were found."}
-            </p>
-
-          ) : (
-
-            <div className="table-wrapper">
-
-              <table>
-
-                <thead>
-
-                  <tr>
-
-                    <th>
-                      Document ID
-                    </th>
-
-                    <th>
-                      File
-                    </th>
-
-                    <th>
-                      Type
-                    </th>
-
-                    <th>
-                      Uploaded
-                    </th>
-
-                    <th>
-                      Action
-                    </th>
-
-                  </tr>
-
-                </thead>
-
-
-                <tbody>
-
-                  {savedDocuments.map(
-                    (document) => (
-
-                      <tr
-                        key={
-                          document.id
-                        }
-                      >
-
-                        <td>
-                          {document.id}
-                        </td>
-
-
-                        <td className="claim-text">
-                          {
-                            document.filename
-                          }
-                        </td>
-
-
-                        <td>
-                          {
-                            document.file_type
-                          }
-                        </td>
-
-
-                        <td>
-                          {
-                            formatDate(
-                              document.uploaded_at
-                            )
-                          }
-                        </td>
-
-
-                        <td>
-
-                          <div
-                            style={{
-                              display:
-                                "flex",
-
-                              gap:
-                                "8px",
-
-                              flexWrap:
-                                "wrap",
-                            }}
-                          >
-
-                            <button
-                              className="review-button"
-
-                              onClick={() =>
-                                loadSavedDocument(
-                                  document.id
-                                )
-                              }
-
-                              disabled={
-                                loadingDocumentId !==
-                                  null ||
-                                deletingDocumentId !==
-                                  null ||
-                                loading
-                              }
-                            >
-                              {loadingDocumentId ===
-                              document.id
-                                ? "Loading..."
-                                : documentId ===
-                                    document.id
-                                  ? "Reload"
-                                  : isAIReview
-                                  ? "Open Claims"
-                                  : "Open"}
-                            </button>
-
-
-                            {!isAIReview && (
-                              <button
-                                onClick={() => deleteSavedDocument(document)}
-                                disabled={deletingDocumentId !== null || loadingDocumentId !== null}
-                              >
-                                {deletingDocumentId === document.id ? "Deleting..." : "Delete"}
-                              </button>
-                            )}
-
-                          </div>
-
-                        </td>
-
-                      </tr>
-
-                    )
-                  )}
-
-                </tbody>
-
-              </table>
-
+      <main className="professor-content lecture-content">
+        <section className="lecture-hero" aria-labelledby="lecture-page-title">
+          <div className="lecture-hero-copy">
+            <p className="lecture-kicker">HUMAN ANATOMY · PROFESSOR PORTAL</p>
+            <h1 id="lecture-page-title">{isAIReview ? "Evidence-led claim review" : "Prepare your lecture material"}</h1>
+            <p>{isAIReview
+              ? "Inspect saved lecture claims, review BullsAI findings against textbook evidence, and record the final academic decision."
+              : "Upload lecture notes, extract the original text and meaningful anatomy claims, then continue to source-grounded review."}</p>
+            <div className="lecture-hero-tags" aria-label="Supported workflows">
+              <span>PDF &amp; DOCX</span><span>Textbook evidence</span><span>Professor-led decisions</span>
             </div>
-
-          )}
-
+          </div>
+          <img src="/images/anatomy-hero.webp" alt="Illustration of human anatomy" className="lecture-hero-art" />
         </section>
 
+        <nav className="lecture-steps" aria-label="Review workflow">
+          <Link to="/professor/documents" className={`lecture-step ${!isAIReview ? "lecture-step-current" : ""}`} aria-current={!isAIReview ? "step" : undefined}>
+            <span className="lecture-step-number">01</span><span><strong>Upload &amp; extract</strong><small>Lecture notes and claims</small></span>
+          </Link>
+          <Link to="/professor/ai-review" className={`lecture-step ${isAIReview ? "lecture-step-current" : ""}`} aria-current={isAIReview ? "step" : undefined}>
+            <span className="lecture-step-number">02</span><span><strong>Verify &amp; decide</strong><small>AI evidence and review</small></span>
+          </Link>
+          <div className="lecture-step lecture-step-planned" aria-label="Planned feature">
+            <span className="lecture-step-number">03</span><span><strong>Reviewed PDF</strong><small>Planned · approved edits only</small></span>
+          </div>
+        </nav>
 
-        {/* ============================================= */}
-        {/* UPLOAD NEW LECTURE */}
-        {/* ============================================= */}
+        {message && <div className="lecture-alert" role="status">{message}</div>}
 
         {!isAIReview && (
-        <section className="card">
-
-          <h2>
-            Upload New Lecture Notes
-          </h2>
-
-          <p className="description">
-            Upload a DOCX or PDF file to extract lecture
-            content and save its anatomy claims for
-            factual review.
-          </p>
-
-
-          <input
-            type="file"
-            accept=".docx,.pdf"
-            onChange={
-              handleFileChange
-            }
-          />
-
-
-          {selectedFile && (
-
-            <div className="file-info">
-
-              <strong>
-                Selected:
-              </strong>{" "}
-
-              {
-                selectedFile.name
-              }
-
+          <section className="lecture-panel lecture-upload-panel" aria-labelledby="lecture-upload-heading">
+            <div className="lecture-section-heading">
+              <div><p className="lecture-kicker">NEW MATERIAL</p><h2 id="lecture-upload-heading">Upload lecture notes</h2>
+                <p>Choose an existing PDF or DOCX. Text extraction and claim extraction are separate actions.</p></div>
+              <span className="lecture-section-icon" aria-hidden="true">↥</span>
             </div>
-
-          )}
-
-
-          <div className="actions">
-
-            <button
-              onClick={
-                extractText
-              }
-
-              disabled={
-                loading ||
-                reviewingClaimId !==
-                  null
-              }
-            >
-              Extract Document Text
-            </button>
-
-
-            <button
-              onClick={
-                extractClaimsFromDocument
-              }
-
-              disabled={
-                loading ||
-                reviewingClaimId !==
-                  null
-              }
-            >
-              Extract Anatomy Claims
-            </button>
-
-          </div>
-
-
-          {loading && (
-
-            <p className="loading">
-              Processing...
-            </p>
-
-          )}
-
-
-
-        </section>
+            <label className="lecture-dropzone" htmlFor="lecture-upload-input">
+              <span className="lecture-drop-icon" aria-hidden="true">⇧</span>
+              <strong>{selectedFile ? selectedFile.name : "Choose a lecture file"}</strong>
+              <span>{selectedFile ? `${(selectedFile.size / (1024 * 1024)).toFixed(2)} MB · Ready to process` : "PDF or DOCX · Browse files on your computer"}</span>
+              <input id="lecture-upload-input" type="file" accept=".docx,.pdf" onChange={handleFileChange} />
+            </label>
+            <div className="lecture-action-bar">
+              <button type="button" onClick={extractText} disabled={!selectedFile || loading || reviewingClaimId !== null}>
+                {loading ? "Processing…" : "Extract Document Text"}
+              </button>
+              <button type="button" className="lecture-primary-action" onClick={extractClaimsFromDocument} disabled={!selectedFile || loading || reviewingClaimId !== null}>
+                {loading ? "Processing…" : "Extract & Save Anatomy Claims →"}
+              </button>
+            </div>
+            {loading && <div className="lecture-processing" role="status" aria-live="polite"><span className="lecture-progress-spinner" aria-hidden="true" />Processing the selected lecture. The file is being analyzed by the backend.</div>}
+            <p className="lecture-fineprint">The original document remains unchanged. Professor decisions are completed in the verification workspace.</p>
+          </section>
         )}
 
-
-        {/* ============================================= */}
-        {/* EXTRACTED TEXT */}
-        {/* ============================================= */}
+        <section className="lecture-panel" aria-labelledby="lecture-saved-heading">
+          <div className="lecture-section-heading">
+            <div><p className="lecture-kicker">YOUR LIBRARY</p><h2 id="lecture-saved-heading">Saved lecture documents</h2>
+              <p>{isAIReview ? "Open a processed lecture to verify its saved claims." : "Reopen a processed lecture or delete an outdated document."}</p></div>
+            <button type="button" onClick={loadSavedDocuments} disabled={loadingDocuments} className="lecture-outline-button">{loadingDocuments ? "Refreshing…" : "↻ Refresh"}</button>
+          </div>
+          {savedDocuments.length === 0 ? (
+            <div className="lecture-empty">{loadingDocuments ? "Loading saved documents…" : isAIReview ? "No processed lectures yet. Upload and extract a lecture first." : "No saved lectures found. Start by uploading your notes above."}</div>
+          ) : (
+            <div className="table-wrapper lecture-table-wrap"><table className="lecture-table"><thead><tr><th>ID</th><th>Lecture file</th><th>Type</th><th>Uploaded</th><th>Actions</th></tr></thead>
+              <tbody>{savedDocuments.map((document) => <tr key={document.id}>
+                <td><span className="lecture-id">#{document.id}</span></td>
+                <td className="lecture-filename">{document.filename}</td>
+                <td>{document.file_type}</td>
+                <td>{formatDate(document.uploaded_at)}</td>
+                <td><div className="lecture-table-actions">
+                  <button type="button" onClick={() => loadSavedDocument(document.id)} disabled={loadingDocumentId !== null || deletingDocumentId !== null || loading}>
+                    {loadingDocumentId === document.id ? "Loading…" : documentId === document.id ? "Reload" : isAIReview ? "Open Claims" : "Open"}
+                  </button>
+                  {!isAIReview && <button type="button" className="lecture-delete" onClick={() => deleteSavedDocument(document)} disabled={deletingDocumentId !== null || loadingDocumentId !== null}>
+                    {deletingDocumentId === document.id ? "Deleting…" : "Delete"}
+                  </button>}
+                </div></td>
+              </tr>)}</tbody></table></div>
+          )}
+        </section>
 
         {!isAIReview && extractedText && (
-
-          <section className="card">
-
-            <h2>
-              Extracted Text
-            </h2>
-
-            <textarea
-              value={
-                extractedText
-              }
-
-              readOnly
-
-              rows="15"
-            />
-
+          <section className="lecture-panel" aria-labelledby="lecture-extracted-heading">
+            <div className="lecture-section-heading"><div><p className="lecture-kicker">TEXT EXTRACTION</p><h2 id="lecture-extracted-heading">Extracted lecture text</h2><p>Read-only preview of the text returned by the backend.</p></div></div>
+            <textarea className="lecture-extracted-text" value={extractedText} readOnly rows={12} aria-label="Extracted lecture text" />
           </section>
-
         )}
-
-
-        {/* ============================================= */}
-        {/* CURRENT LECTURE */}
-        {/* ============================================= */}
 
         {currentDocument && (
-
-          <section className="card">
-
-            <h2>
-              {isAIReview ? "Selected Lecture for Verification" : "Current Lecture"}
-            </h2>
-
-            <p className="description">
-
-              <strong>
-                Document ID:
-              </strong>{" "}
-
-              {
-                currentDocument.id
-              }
-
-            </p>
-
-            <p className="description">
-
-              <strong>
-                File:
-              </strong>{" "}
-
-              {
-                currentDocument.filename
-              }
-
-            </p>
-
+          <section className="lecture-panel lecture-selected" aria-label="Selected lecture">
+            <div><p className="lecture-kicker">CURRENT LECTURE</p><h2>{currentDocument.filename}</h2><p>Document ID: {currentDocument.id} · {claims.length} saved claims</p></div>
+            {!isAIReview && claims.length > 0 && <Link to={`/professor/ai-review?document=${documentId}`} className="lecture-continue">Continue to AI Verification →</Link>}
           </section>
-
         )}
 
-
-        {/* ============================================= */}
-        {/* DOCUMENT MODE: CLAIMS READY TO VERIFY */}
-        {/* ============================================= */}
-
         {!isAIReview && claims.length > 0 && (
-          <section className="card">
-            <h2>Extracted Anatomy Claims</h2>
-            <p className="description">
-              {claims.length} claims have been saved. Review the extraction below,
-              then open the AI Verification page for BullsAI assessment and
-              professor decisions.
-            </p>
-            <Link
-              className="workflow-continue-link"
-              to={`/professor/ai-review?document=${documentId}`}
-            >
-              Continue to AI Verification →
-            </Link>
-            <div className="table-wrapper">
-              <table>
-                <thead>
-                  <tr>
-                    <th>Claim #</th>
-                    <th>Page</th>
-                    <th>Extracted Claim</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {claims.map((claim) => (
-                    <tr key={claim.id}>
-                      <td>{claim.claim_number}</td>
-                      <td>{claim.page ?? "—"}</td>
-                      <td className="claim-text">{claim.text}</td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+          <section className="lecture-panel" aria-labelledby="lecture-claims-heading">
+            <div className="lecture-section-heading"><div><p className="lecture-kicker">EXTRACTION RESULTS</p><h2 id="lecture-claims-heading">Extracted anatomy claims</h2>
+              <p>{claims.length} claims saved. Review the original wording before moving to AI verification.</p></div></div>
+            <div className="table-wrapper lecture-table-wrap"><table className="lecture-table"><thead><tr><th>Claim #</th><th>Page</th><th>Extracted statement</th></tr></thead>
+              <tbody>{claims.map((claim) => <tr key={claim.id}><td>{claim.claim_number}</td><td>{claim.page ?? "—"}</td><td className="lecture-filename">{claim.text}</td></tr>)}</tbody></table></div>
+            <Link to={`/professor/ai-review?document=${documentId}`} className="lecture-continue lecture-continue-bottom">Continue to AI Verification →</Link>
           </section>
         )}
 
         {isAIReview && !currentDocument && (
-          <section className="card">
-            <h2>Choose a saved lecture above</h2>
-            <p className="description">
-              This page uses claims already extracted from your saved documents.
-              To add a new lecture, go to document extraction first.
-            </p>
-            <Link className="workflow-continue-link" to="/professor/documents">
-              Go to Document Extraction →
-            </Link>
-          </section>
+          <section className="lecture-panel lecture-empty-selection"><h2>Select a lecture to review</h2><p>Open a saved lecture above, or upload and extract a new one first.</p>
+            <Link to="/professor/documents" className="lecture-continue">Go to Document Extraction →</Link></section>
         )}
-
-        {/* ============================================= */}
-        {/* AI SUMMARY */}
-        {/* ============================================= */}
 
         {isAIReview && claims.length > 0 && (
-
-          <section className="card">
-
-            <h2>
-              AI Review Summary
-            </h2>
-
-            <p className="description">
-              BullsAI generates an initial assessment when configured.
-              External citation retrieval is not yet integrated, so model
-              assessments are not independently source-verified. The
-              professor makes the final decision.
-            </p>
-
-
-            <div className="review-summary">
-
-              <div className="summary-card">
-
-                <span>
-                  Total Claims
-                </span>
-
-                <strong>
-                  {totalClaims}
-                </strong>
-
+          <>
+            <section className="lecture-panel" aria-labelledby="lecture-ai-summary">
+              <div className="lecture-section-heading"><div><p className="lecture-kicker">AI ASSESSMENT</p><h2 id="lecture-ai-summary">Verification overview</h2>
+                <p>BullsAI reviews retrieved anatomy evidence. All AI findings require independent academic judgment; the professor makes the final decision.</p></div></div>
+              <div className="review-summary lecture-stat-grid">
+                {[ ["Total claims", totalClaims], ["AI reviewed", aiReviewedCount], ["Likely correct (legacy status)", likelyCorrectCount], ["Possible errors", possibleErrorCount], ["Needs review", aiNeedsReviewCount], ["Not reviewed", notReviewedCount] ].map(([label, value]) => (
+                  <div className="summary-card" key={label}><span>{label}</span><strong>{value}</strong></div>
+                ))}
               </div>
-
-
-              <div className="summary-card">
-
-                <span>
-                  AI Reviewed
-                </span>
-
-                <strong>
-                  {aiReviewedCount}
-                </strong>
-
+            </section>
+            <section className="lecture-panel" aria-labelledby="lecture-instructor-review">
+              <div className="lecture-section-heading"><div><p className="lecture-kicker">PROFESSOR REVIEW</p><h2 id="lecture-instructor-review">Instructor review</h2>
+                <p>Inspect source passages, review AI findings, and save your decisions for each claim.</p></div></div>
+              <div className="review-summary lecture-stat-grid">
+                {[ ["Total", totalClaims], ["Pending", pendingCount], ["Accepted", acceptedCount], ["Rejected", rejectedCount], ["Edited", editedCount], ["Needs review", professorNeedsReviewCount] ].map(([label, value]) => (
+                  <div className="summary-card" key={label}><span>{label}</span><strong>{value}</strong></div>
+                ))}
               </div>
-
-
-              <div className="summary-card">
-
-                <span>
-                  Likely Correct
-                </span>
-
-                <strong>
-                  {likelyCorrectCount}
-                </strong>
-
-              </div>
-
-
-              <div className="summary-card">
-
-                <span>
-                  Possible Error
-                </span>
-
-                <strong>
-                  {possibleErrorCount}
-                </strong>
-
-              </div>
-
-
-              <div className="summary-card">
-
-                <span>
-                  Needs Review
-                </span>
-
-                <strong>
-                  {aiNeedsReviewCount}
-                </strong>
-
-              </div>
-
-
-              <div className="summary-card">
-
-                <span>
-                  Not Reviewed
-                </span>
-
-                <strong>
-                  {notReviewedCount}
-                </strong>
-
-              </div>
-
-            </div>
-
-
-            <p className="description">
-              Review each claim individually using the BullsAI configuration.
-              Bulk persisted reviews are not available in this interface yet.
-            </p>
-
-          </section>
-
+              <BulkReviewButton claims={claims} reviewClaimWithAI={(claimId) => reviewClaimWithAI(claimId, true)} disabled={reviewingClaimId !== null || loading} />
+              <ClaimReviewCards
+                claims={claims}
+                reviewClaimWithAI={reviewClaimWithAI}
+                saveProfessorDecision={saveProfessorDecision}
+                startEditingCorrection={startEditingCorrection}
+                saveEditedCorrection={saveEditedCorrection}
+                editingClaimId={editingClaimId}
+                editCorrectionText={editCorrectionText}
+                setEditCorrectionText={setEditCorrectionText}
+                cancelEditing={() => { setEditingClaimId(null); setEditCorrectionText(""); }}
+                reviewingClaimId={reviewingClaimId}
+                savingDecisionClaimId={savingDecisionClaimId}
+                formatAIStatus={formatAIStatus}
+                getAIStatusClass={getAIStatusClass}
+                formatDecision={formatDecision}
+              />
+            </section>
+          </>
         )}
-
-
-        {/* ============================================= */}
-        {/* INSTRUCTOR REVIEW */}
-        {/* ============================================= */}
-
-        {isAIReview && claims.length > 0 && (
-
-          <section className="card">
-
-            <h2>
-              Instructor Review
-            </h2>
-
-            <p className="description">
-              Review the AI finding, examine its sources,
-              and record the final instructor decision.
-            </p>
-
-
-            <div className="review-summary">
-
-              <div className="summary-card">
-                <span>
-                  Total
-                </span>
-                <strong>
-                  {totalClaims}
-                </strong>
-              </div>
-
-
-              <div className="summary-card">
-                <span>
-                  Pending
-                </span>
-                <strong>
-                  {pendingCount}
-                </strong>
-              </div>
-
-
-              <div className="summary-card">
-                <span>
-                  Accepted
-                </span>
-                <strong>
-                  {acceptedCount}
-                </strong>
-              </div>
-
-
-              <div className="summary-card">
-                <span>
-                  Rejected
-                </span>
-                <strong>
-                  {rejectedCount}
-                </strong>
-              </div>
-
-
-              <div className="summary-card">
-                <span>
-                  Edited
-                </span>
-                <strong>
-                  {editedCount}
-                </strong>
-              </div>
-
-
-              <div className="summary-card">
-                <span>
-                  Needs Review
-                </span>
-                <strong>
-                  {professorNeedsReviewCount}
-                </strong>
-              </div>
-
-            </div>
-
-
-            <BulkReviewButton
-              claims={claims}
-              reviewClaimWithAI={(claimId) =>
-                reviewClaimWithAI(claimId, true)
-              }
-              disabled={reviewingClaimId !== null || loading}
-            />
-
-            <ClaimReviewCards
-              claims={claims}
-              reviewClaimWithAI={reviewClaimWithAI}
-              saveProfessorDecision={saveProfessorDecision}
-              startEditingCorrection={startEditingCorrection}
-              saveEditedCorrection={saveEditedCorrection}
-              editingClaimId={editingClaimId}
-              editCorrectionText={editCorrectionText}
-              setEditCorrectionText={setEditCorrectionText}
-              cancelEditing={() => {
-                setEditingClaimId(null);
-                setEditCorrectionText("");
-              }}
-              reviewingClaimId={reviewingClaimId}
-              savingDecisionClaimId={savingDecisionClaimId}
-              formatAIStatus={formatAIStatus}
-              getAIStatusClass={getAIStatusClass}
-              formatDecision={formatDecision}
-            />
-
-          </section>
-
-        )}
-
       </main>
-
     </div>
   );
 }
-
 
 export default LectureReview;
