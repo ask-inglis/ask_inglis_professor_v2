@@ -3042,3 +3042,12 @@ def delete_reference_pdf(
     return {"message": "Reference deleted", "reference_id": record["reference_id"]}
 
 
+from app.student_feedback_routes import build_student_feedback_router
+
+app.include_router(build_student_feedback_router(get_current_professor))
+
+from app.lecture_external_research_routes import build_lecture_external_research_router
+
+app.include_router(
+    build_lecture_external_research_router(get_current_professor)
+)

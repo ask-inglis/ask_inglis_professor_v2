@@ -1,7 +1,6 @@
 import { useNavigate } from "react-router-dom";
 
-// Dashboard UI only. Future modules are intentionally informational until
-// authenticated API endpoints and their review workflows are implemented.
+// Professor workspace navigation. Feedback uses demo data until live integration is configured.
 const styles = `
   .inglis-dashboard { min-height:100vh; color:#edf7ff; background:radial-gradient(circle at 83% 11%,rgba(41,127,205,.18),transparent 37%),radial-gradient(circle at 10% 75%,rgba(55,72,177,.16),transparent 42%),#061326; font-family:inherit; }
   .inglis-dashboard * { box-sizing:border-box; }
@@ -54,6 +53,7 @@ function ProfessorDashboard() {
 
   const openDocumentReview = () => navigate("/professor/documents");
   const openAIReview = () => navigate("/professor/ai-review");
+  const openStudentFeedback = () => navigate("/professor/feedback");
 
   return (
     <div className="inglis-dashboard">
@@ -76,7 +76,7 @@ function ProfessorDashboard() {
           <div>
             <p className="inglis-kicker">Human anatomy · Professor portal</p>
             <h1 id="inglis-welcome-title">Anatomy education,<br /><span>backed by evidence.</span></h1>
-            <p>Manage lecture materials, analyze meaningful anatomy claims, inspect textbook references, and make the final academic decisions. Reviewed lecture PDFs and student chatbot feedback are the next planned workspaces.</p>
+            <p>Manage lecture materials, analyze meaningful anatomy claims, inspect textbook references, and make the final academic decisions. Download professor-reviewed lecture PDFs and review student chatbot feedback in dedicated workspaces.</p>
           </div>
           <div className="inglis-hero-image" role="img" aria-label="Anatomical illustration of a human torso and heart" />
         </section>
@@ -98,27 +98,22 @@ function ProfessorDashboard() {
             <p>Examine BullsAI assessments and cited evidence, then accept, reject, flag, or edit claims using existing review controls.</p>
             <button className="inglis-action" type="button" onClick={openAIReview}>Open AI Review →</button>
           </article>
+          <article className="inglis-workspace">
+            <div className="inglis-workspace-top"><span className="inglis-workspace-icon teal" aria-hidden="true">↓</span><span className="inglis-status">Available</span></div>
+            <h3>Generate Reviewed Lecture PDF</h3>
+            <p>Download a separate reviewed PDF with professor-approved corrections while preserving the original upload. Open Document Review, then select a lecture to download its reviewed PDF.</p>
+            <button className="inglis-action" type="button" onClick={openDocumentReview}>Open Reviewed PDF Workspace →</button>
+          </article>
+          <article className="inglis-workspace">
+            <div className="inglis-workspace-top"><span className="inglis-workspace-icon amber" aria-hidden="true">✉</span><span className="inglis-status">Available · Demo</span></div>
+            <h3>Student Chatbot Feedback</h3>
+            <p>View reported chatbot answers, student comments, related lectures and grouped reports. Record professor decisions in the feedback review inbox.</p>
+            <button className="inglis-action" type="button" onClick={openStudentFeedback}>Open Feedback Inbox →</button>
+            <div className="inglis-upcoming-note" style={{ marginTop: 14 }}>Currently using sample feedback. Live connection to the student chatbot and BullsAI feedback analysis are not yet enabled.</div>
+          </article>
         </section>
 
-        <div className="inglis-section-header">
-          <h2>Coming next</h2>
-          <p>Planned features are shown for navigation planning only. They are not yet active or connected to an API.</p>
-        </div>
-        <section className="inglis-workspaces" aria-label="Upcoming professor tools">
-          <article className="inglis-workspace">
-            <div className="inglis-workspace-top"><span className="inglis-workspace-icon teal" aria-hidden="true">↓</span><span className="inglis-status soon">Planned</span></div>
-            <h3>Generate Reviewed Lecture PDF</h3>
-            <p>Preserve the original document, apply only professor-approved factual corrections, and download a separate reviewed PDF with appropriate citations.</p>
-            <div className="inglis-upcoming-note">Available after PDF export and professor-approval integration. Original uploads will remain unchanged.</div>
-          </article>
-          <article className="inglis-workspace">
-            <div className="inglis-workspace-top"><span className="inglis-workspace-icon amber" aria-hidden="true">✉</span><span className="inglis-status soon">Integration planned</span></div>
-            <h3>Student Chatbot Feedback</h3>
-            <p>View student-reported questions and chatbot answers, request cited AI analysis, and record professor decisions and resolution history.</p>
-            <div className="inglis-upcoming-note">Connect to the teammates' chatbot after confirming its feedback API, authentication, and data format.</div>
-          </article>
-        </section>
-        <p className="inglis-architecture-note">AI assessments assist review; final academic decisions remain with the professor. Future modules will not alter existing records without explicit professor actions.</p>
+        <p className="inglis-architecture-note">AI assessments assist review; final academic decisions remain with the professor. Student chatbot feedback currently uses demo data until the live integration is configured.</p>
       </main>
     </div>
   );
