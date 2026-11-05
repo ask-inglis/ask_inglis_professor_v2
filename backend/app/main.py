@@ -1697,24 +1697,17 @@ def delete_document(
 
 #*** ---------------------------------------------------------***
 
-def _retrieve_claim_evidence(professor_id: int, claim_text: str) -> list[dict]:
+def _retrieve_claim_evidence(
+    professor_id: int,
+    claim_text: str,
+) -> list[dict]:
+    from app.services.lecture_claim_evidence_service import (
+        retrieve_lecture_claim_evidence,
+    )
 
-    """Search only this professor's indexed reference material.
-
-    Search hits may be merely topically related, not supporting evidence.
-
-    BullsAI must assess relevance and the professor makes the final decision.
-
-    """
-
-    return search_reference_passages(
-
+    return retrieve_lecture_claim_evidence(
         professor_id=professor_id,
-
-        query=claim_text,
-
-        limit=6,
-
+        claim_text=claim_text,
     )
 
 @app.post("/review-claim")
