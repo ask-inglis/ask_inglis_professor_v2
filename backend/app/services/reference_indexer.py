@@ -8,7 +8,7 @@ records; callers must verify ownership before invoking index_reference_pdf.
 """
 
 from __future__ import annotations
-
+import os
 import re
 import sqlite3
 import tempfile
@@ -18,7 +18,7 @@ from pathlib import Path
 import pymupdf
 
 BACKEND_DIR = Path(__file__).resolve().parents[2]
-INDEX_DB_PATH = BACKEND_DIR / "reference_index.sqlite3"
+INDEX_DB_PATH = Path(os.getenv("DATA_DIR") or BACKEND_DIR) / "reference_index.sqlite3"
 CHUNK_TARGET_CHARS = 1000
 CHUNK_OVERLAP_CHARS = 150
 MAX_CHUNKS_PER_PAGE = 100

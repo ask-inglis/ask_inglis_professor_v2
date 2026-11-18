@@ -1,7 +1,7 @@
 from datetime import datetime
 
 from uuid import UUID, uuid4
-
+import os
 import json
 
 from pathlib import Path
@@ -137,6 +137,10 @@ app.add_middleware(
 
         "http://127.0.0.1:5174",
 
+    ] + [
+        o.strip()
+        for o in os.getenv("ALLOWED_ORIGINS", "").split(",")
+        if o.strip()
     ],
 
     allow_credentials=True,
@@ -153,7 +157,9 @@ app.add_middleware(
 
 #*** ---------------------------------------------------------***
 
-UPLOAD_DIR = Path(__file__).resolve().parent.parent / "uploads"
+DATA_ROOT = Path(os.getenv("DATA_DIR") or Path(__file__).resolve().parent.parent)
+
+UPLOAD_DIR = DATA_ROOT / "uploads"
 
 UPLOAD_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -2644,7 +2650,7 @@ def download_reviewed_lecture_pdf(
 
 #** ---------------------------------------------------------**
 
-REFERENCE_DIR = Path(__file__).resolve().parent.parent / "reference_library"
+REFERENCE_DIR = DATA_ROOT / "reference_library"
 
 MAX_REFERENCE_PDF_BYTES = 100 * 1024 * 1024
 

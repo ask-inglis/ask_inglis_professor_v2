@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 
-const BACKEND_URL = "http://127.0.0.1:8000";
+const BACKEND_URL = (import.meta.env.VITE_API_BASE_URL || "http://127.0.0.1:8000").replace(/\/$/, "");
 
 // Presentation-only update. Existing authentication, storage, and routing stay intact.
 // Keep the image at frontend/public/images/anatomy-hero.webp.
