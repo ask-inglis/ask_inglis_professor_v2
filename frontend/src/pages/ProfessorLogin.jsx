@@ -313,7 +313,7 @@ function ProfessorLogin() {
         <div className="medical-login-image-wrap">
           <img
             className="medical-login-image"
-            src="/images/anatomy-hero.webp"
+            src={`${import.meta.env.BASE_URL}images/anatomy-hero.webp`}
             alt="Detailed blue-toned anatomical illustration of the human body, skeleton, muscles, and heart"
             loading="eager"
           />

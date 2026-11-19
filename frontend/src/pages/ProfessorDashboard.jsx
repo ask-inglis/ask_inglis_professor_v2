@@ -18,7 +18,7 @@ const styles = `
   .inglis-hero h1 { margin:0 0 20px; font-size:clamp(2rem,4vw,3.8rem); line-height:1.12; letter-spacing:-.05em; }
   .inglis-hero h1 span { color:#80d6ff; }
   .inglis-hero p:not(.inglis-kicker) { color:#b8cce3; line-height:1.8; margin:0; max-width:600px; }
-  .inglis-hero-image { width:100%; height:300px; background-image:linear-gradient(to right,#071a32 0%,transparent 22%,transparent 78%,#071a32 100%),url('/images/anatomy-hero.webp'); background-position:center; background-size:cover; border-radius:14px; mask-image:radial-gradient(ellipse 70% 76% at center,#000 47%,transparent 100%); -webkit-mask-image:radial-gradient(ellipse 70% 76% at center,#000 47%,transparent 100%); }
+  .inglis-hero-image { width:100%; height:300px; background-image:linear-gradient(to right,#071a32 0%,transparent 22%,transparent 78%,#071a32 100%),url('${import.meta.env.BASE_URL}images/anatomy-hero.webp'); background-position:center; background-size:cover; border-radius:14px; mask-image:radial-gradient(ellipse 70% 76% at center,#000 47%,transparent 100%); -webkit-mask-image:radial-gradient(ellipse 70% 76% at center,#000 47%,transparent 100%); }
   .inglis-section-header { margin:35px 0 18px; }
   .inglis-section-header h2 { color:#f1f7ff; margin:0 0 7px; font-size:23px; letter-spacing:-.025em; }
   .inglis-section-header p { color:#a8c0db; margin:0; line-height:1.6; }
