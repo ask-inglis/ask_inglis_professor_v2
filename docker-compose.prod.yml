@@ -18,6 +18,7 @@ services:
       context: ./frontend
       args:
         VITE_API_BASE_URL: https://${PROF_API_HOST}
+        VITE_BASE_PATH: /ask_inglis_professor/
     restart: unless-stopped
     networks:
       default: {}

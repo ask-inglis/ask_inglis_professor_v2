@@ -2608,7 +2608,7 @@ function LectureReview({ mode = "documents" }) {
 
           </div>
 
-          <img src="/images/anatomy-hero.webp" alt="Illustration of human anatomy" className="lecture-hero-art" />
+          <img src={`${import.meta.env.BASE_URL}images/anatomy-hero.webp`} alt="Illustration of human anatomy" className="lecture-hero-art" />
 
         </section>
 
