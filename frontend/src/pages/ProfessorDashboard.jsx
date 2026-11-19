@@ -54,6 +54,7 @@ function ProfessorDashboard() {
   const openDocumentReview = () => navigate("/professor/documents");
   const openAIReview = () => navigate("/professor/ai-review");
   const openStudentFeedback = () => navigate("/professor/feedback");
+  const openInsights = () => navigate("/professor/insights");
 
   return (
     <div className="inglis-dashboard">
@@ -105,15 +106,32 @@ function ProfessorDashboard() {
             <button className="inglis-action" type="button" onClick={openDocumentReview}>Open Reviewed PDF Workspace →</button>
           </article>
           <article className="inglis-workspace">
-            <div className="inglis-workspace-top"><span className="inglis-workspace-icon amber" aria-hidden="true">✉</span><span className="inglis-status">Available · Demo</span></div>
+            <div className="inglis-workspace-top"><span className="inglis-workspace-icon amber" aria-hidden="true">✉</span><span className="inglis-status">Available · Live integration</span></div>
             <h3>Student Chatbot Feedback</h3>
             <p>View reported chatbot answers, student comments, related lectures and grouped reports. Record professor decisions in the feedback review inbox.</p>
             <button className="inglis-action" type="button" onClick={openStudentFeedback}>Open Feedback Inbox →</button>
-            <div className="inglis-upcoming-note" style={{ marginTop: 14 }}>Currently using sample feedback. Live connection to the student chatbot and BullsAI feedback analysis are not yet enabled.</div>
+            <div className="inglis-upcoming-note" style={{ marginTop: 14 }}>Supports live Student Chatbot feedback when configured. BullsAI-assisted review is available.</div>
+          </article>
+          <article className="inglis-workspace">
+            <div className="inglis-workspace-top">
+              <span className="inglis-workspace-icon teal" aria-hidden="true">◎</span>
+              <span className="inglis-status">Available · Privacy protected</span>
+            </div>
+            <h3>Student Learning Insights</h3>
+            <p>
+              Explore learning patterns, quiz performance, dissection guide usage,
+              and teaching opportunities using privacy-protected analytics.
+            </p>
+            <button className="inglis-action" type="button" onClick={openInsights}>
+              Open Learning Insights →
+            </button>
+            <div className="inglis-upcoming-note" style={{ marginTop: 14 }}>
+              Student statistics remain hidden until anonymity requirements are verified.
+            </div>
           </article>
         </section>
 
-        <p className="inglis-architecture-note">AI assessments assist review; final academic decisions remain with the professor. Student chatbot feedback currently uses demo data until the live integration is configured.</p>
+        <p className="inglis-architecture-note">AI assessments assist review; final academic decisions remain with the professor. Student feedback supports live integration; learning insights follow strict privacy protections.</p>
       </main>
     </div>
   );

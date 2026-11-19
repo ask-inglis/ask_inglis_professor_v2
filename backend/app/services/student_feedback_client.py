@@ -143,6 +143,44 @@ class StudentFeedbackClient:
         except (UnicodeError, json.JSONDecodeError) as exc:
             raise FeedbackClientError("Student chatbot returned invalid JSON") from exc
 
+    def get_insights(self, weeks: int = 4) -> dict[str, Any]:
+        """Retrieve only privacy-approved Student Chatbot insights."""
+        if type(weeks) is not int or not 1 <= weeks <= 26:
+            raise ValueError("weeks must be between 1 and 26")
+
+        if self.is_mock:
+            raise FeedbackClientError(
+                "Live Student Chatbot is required for Insights"
+            )
+
+        result = self._request(
+            "GET", f"/admin/insights?weeks={weeks}"
+        )
+
+        if not isinstance(result, dict):
+            raise FeedbackClientError("Invalid Insights response")
+
+        privacy = result.get("privacy")
+        if not isinstance(privacy, dict):
+            raise FeedbackClientError("Missing Insights privacy information")
+
+        if privacy.get("individual_data_exposed") is not False:
+            raise FeedbackClientError("Insights privacy validation failed")
+
+        allowed_keys = {
+            "status", "weeks_requested", "privacy",
+            "frequently_asked_topics", "quiz_performance",
+            "dissection_guides", "learning_gaps",
+            "weekly_trends", "recommendations",
+        }
+
+        if set(result) - allowed_keys:
+            raise FeedbackClientError(
+                "Unexpected fields in Insights response"
+            )
+
+        return result
+
     def list_queue(self, *, limit: int = 50, status: str = "pending_review") -> dict[str, Any]:
         """Return {'mode', 'groups', 'total_groups'} for the professor API.
 
