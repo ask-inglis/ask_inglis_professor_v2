@@ -1,4 +1,3 @@
-
 # Ask Inglis Anatomy AI — Professor Portal
 
 **CDA 650 | University at Buffalo**
@@ -28,6 +27,22 @@ https://github.com/ask-inglis/ask_inglis_chatbot
 `ask-inglis/ask_inglis_notes`
 
 The notes repository stores lecture material and feedback records and is accessed through the Student Chatbot backend.
+
+**Proxy (nginx):**
+`ask_inglis_proxy`
+
+The proxy routes web addresses to the two applications on the droplet.
+
+### Live Addresses
+
+| Address | What it is |
+|---|---|
+| https://inglis.gansonstreet.com/ask_inglis_professor/ | Professor Dashboard |
+| https://inglis.gansonstreet.com/ask_inglis_chatbot/ | Student Chatbot |
+| https://profapi.159-203-143-149.sslip.io | Professor backend (API only; the `/docs` pages are hidden) |
+| https://prof.159-203-143-149.sslip.io | Older Professor Dashboard address; it redirects to the new one |
+
+How the live site is deployed is described in section 19.
 
 ---
 
@@ -110,6 +125,8 @@ Professors can:
 ### 3.4 BullsAI Claim Verification
 
 The Professor Dashboard integrates with the University at Buffalo BullsAI API.
+
+> **Note: in the current setup the `BULLSAI_*` settings point to Gemini, not to BullsAI.** The settings keep their BullsAI names because the code talks to an OpenAI-compatible service, and Gemini offers one. `BULLSAI_BASE_URL` is Google's Gemini address, `BULLSAI_MODEL` is a Gemini model, and `BULLSAI_API_KEY` holds a Gemini key. BullsAI itself can only be reached from UB's network, so the live droplet cannot use it.
 
 BullsAI analyzes anatomical statements using retrieved reference evidence.
 
@@ -532,9 +549,10 @@ File:
 Important variables:
 
 ```dotenv
-BULLSAI_BASE_URL=https://gateway.bullsai.buffalo.edu/v1
-BULLSAI_MODEL=zai-org/GLM-5.3-Flash
-BULLSAI_API_KEY=YOUR_BULLSAI_API_KEY
+# The BULLSAI_* names are historical: they currently point to Gemini (see the note in section 3.4)
+BULLSAI_BASE_URL=https://generativelanguage.googleapis.com/v1beta/openai
+BULLSAI_MODEL=gemini-3.5-flash-lite
+BULLSAI_API_KEY=YOUR_GEMINI_API_KEY
 
 JWT_SECRET_KEY=YOUR_JWT_SECRET
 
@@ -844,6 +862,7 @@ AI verification must rely on actual cited passages rather than unsupported assum
 | BullsAI student feedback verification | Tested |
 | External evidence in lecture claim review | Integrated; broader live testing pending |
 | GitHub bot feedback-resolution commit | Final verification pending |
+| Live deployment on the droplet | Live; redeploys on every push to `main` |
 
 ---
 
@@ -860,7 +879,7 @@ Planned development includes:
 7. Confirming GitHub bot identity for new resolution commits.
 8. Improving large-batch lecture verification.
 9. Additional end-to-end integration testing.
-10. Deployment readiness and security review.
+10. Security review and secret rotation before handover.
 
 ---
 
@@ -882,7 +901,84 @@ Changes between applications should preserve established API compatibility.
 
 ---
 
-## 19. Disclaimer
+## 19. Live Deployment
+
+The Professor Dashboard runs in Docker on the shared droplet (159.203.143.149), next to the Student Chatbot.
+
+### How it is deployed
+
+Merging or pushing to `main` is a deploy. GitHub Actions copies the repository to the droplet and runs:
+
+```bash
+docker compose --env-file .env.prod -f docker-compose.prod.yml up -d --build
+```
+
+Test changes on your own computer before merging to `main`.
+
+### How it is set up
+
+- `docker-compose.prod.yml` runs two containers: the backend (FastAPI, port 8001 inside the container) and the frontend (served on port 8080 inside the container).
+- Neither container publishes a port. They join the Docker network `web` with the names `professor-backend` and `professor-frontend`. The `ask_inglis_proxy` nginx sends traffic to them by those names.
+- The database (SQLite) and uploaded files live in the Docker volume `portal_data`, mounted at `/data` in the backend container.
+- The frontend is built to live under `/ask_inglis_professor/`. The build settings are `VITE_BASE_PATH=/ask_inglis_professor/` and `VITE_API_BASE_URL=https://<PROF_API_HOST>`. Both are fixed when the site is built. Running locally (sections 8 and 9) does not need them.
+
+### Files that live only on the droplet
+
+These are never copied by the deploy and must never be committed:
+
+| File | What it holds |
+|---|---|
+| `backend/.env` | The real settings and keys (the Gemini key in `BULLSAI_API_KEY`, `JWT_SECRET_KEY`, `STUDENT_CHATBOT_ADMIN_KEY`, and so on) |
+| `.env.prod` | The API address used when the frontend is built, for example `PROF_API_HOST=profapi.159-203-143-149.sslip.io` |
+
+Settings that matter on the droplet:
+
+```dotenv
+ALLOWED_ORIGINS=<the addresses the dashboard is opened from, comma separated>
+STUDENT_CHATBOT_URL=<where this backend reaches the Student Chatbot backend>
+STUDENT_CHATBOT_ADMIN_KEY=<must match the chatbot's ADMIN_API_KEY>
+```
+
+`ALLOWED_ORIGINS` must include `https://inglis.gansonstreet.com`. The backend reads `.env` only when it starts, so restart it after changing a value.
+
+### Restarting (on the droplet)
+
+```bash
+docker ps --format '{{.Names}}' | grep -i backend     # the chatbot has a backend too; pick the professor one
+docker restart NAME_HERE
+docker logs -f --tail 20 NAME_HERE
+```
+
+Do not touch containers that belong to other projects on the droplet.
+
+### Professor login
+
+The professor login is an email and a password. The first account is created from `INITIAL_PROFESSOR_EMAIL` and `INITIAL_PROFESSOR_PASSWORD` in `backend/.env` using `create_initial_data.py`. To set a new password, use `reset_professor_password.py`. After the password is changed, remove `INITIAL_PROFESSOR_PASSWORD` from `backend/.env`.
+
+### Keep the data safe
+
+- Never run `docker compose down -v` or `docker volume rm` on this project. That deletes the `portal_data` volume with the database.
+- Back up the volume before large changes.
+
+### Handover checklist
+
+- Rotate `JWT_SECRET_KEY`, the shared admin key (change it in both applications) and the deploy key.
+- Move the Gemini key (stored in `BULLSAI_API_KEY`) to an account owned by new owner or the course.
+- Give the new owner access to all four repositories and to the droplet.
+
+### Troubleshooting the live site
+
+| Problem | What to check |
+|---|---|
+| Error page (502) | Is the portal backend or frontend container running? `docker ps` on the droplet |
+| Login works but nothing loads, or the browser reports a CORS error | `ALLOWED_ORIGINS` in the droplet's `backend/.env`; restart the backend |
+| Page loads but images or styles are missing | The frontend must be built with `VITE_BASE_PATH=/ask_inglis_professor/` |
+| Feedback inbox times out | `STUDENT_CHATBOT_TIMEOUT_SECONDS` (see section 13.3) and `STUDENT_CHATBOT_URL` |
+| Deploy run is red in GitHub Actions | Open the run and read the failing step |
+
+---
+
+## 20. Disclaimer
 
 Ask Inglis Anatomy AI is an educational research project.
 
