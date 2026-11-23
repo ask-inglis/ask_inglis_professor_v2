@@ -1,8 +1,13 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import "./ProfessorInsights.css";
+import InsightsDemoCharts from "./InsightsDemoCharts";
 
-const API_URL = "http://127.0.0.1:8000";
+const API_URL =
+  import.meta.env.VITE_PROFESSOR_API_URL ||
+  (import.meta.env.DEV
+    ? "http://127.0.0.1:8000"
+    : window.location.origin);
 
 const sections = [
   {
@@ -38,6 +43,7 @@ export default function ProfessorInsights() {
   const [report, setReport] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showDemo, setShowDemo] = useState(false);
 
   useEffect(() => {
     const controller = new AbortController();
@@ -75,9 +81,20 @@ export default function ProfessorInsights() {
 
         const data = await response.json();
 
+        const withheld =
+          data?.status === "insufficient_anonymous_data" &&
+          data?.privacy?.contributor_verification === "unavailable";
+
+        const snapshot =
+          data?.status === "reviewed_snapshot_candidate" &&
+          data?.weeks_requested === 4 &&
+          data?.privacy?.contributor_verification === "not_applicable" &&
+          data?.privacy?.reporting_basis ===
+            "interaction_activity_not_students";
+
         if (
           data?.privacy?.individual_data_exposed !== false ||
-          data?.privacy?.contributor_verification !== "unavailable"
+          (!withheld && !snapshot)
         ) {
           throw new Error("Unexpected Insights privacy response.");
         }
@@ -141,6 +158,22 @@ export default function ProfessorInsights() {
           </label>
         </section>
 
+        {import.meta.env.DEV && (
+          <div style={{ marginBottom: 22 }}>
+            <button
+              type="button"
+              className="pi-back"
+              onClick={() => setShowDemo((current) => !current)}
+            >
+              {showDemo
+                ? "Hide Sample Analytics"
+                : "Preview Sample Analytics"}
+            </button>
+
+            {showDemo && <InsightsDemoCharts weeks={weeks} />}
+          </div>
+        )}
+
         {loading ? (
           <div className="pi-message" role="status">
             Loading privacy-protected Insights…
@@ -149,6 +182,40 @@ export default function ProfessorInsights() {
           <div className="pi-message pi-error" role="alert">
             {error}
           </div>
+        ) : report?.status === "reviewed_snapshot_candidate" ? (
+          <>
+            <div className="pi-privacy-banner">
+              <span className="pi-lock" aria-hidden="true">♧</span>
+              <div>
+                <strong>Course-wide interaction summary</strong>
+                <p>
+                  This report describes chatbot interactions, not
+                  individual students or unique student counts.
+                </p>
+              </div>
+            </div>
+
+            <div className="pi-stats">
+              <div className="pi-stat">
+                <span>Course Activity</span>
+                <strong>
+                  {report.course_activity?.activity_level
+                    ?.replaceAll("_", " ")
+                    .toUpperCase() || "Not available"}
+                </strong>
+                <small>
+                  {report.course_activity?.period_start} to{" "}
+                  {report.course_activity?.period_end}
+                </small>
+                <small>Four completed reporting weeks</small>
+              </div>
+            </div>
+
+            <div className="pi-message">
+              Detailed topic, quiz, and weekly statistics are
+              not included in this reporting snapshot.
+            </div>
+          </>
         ) : (
           <>
             <div className="pi-privacy-banner">
