@@ -11,6 +11,7 @@ import ProfessorLogin from "./pages/ProfessorLogin";
 import ProfessorDashboard from "./pages/ProfessorDashboard";
 import LectureReview from "./pages/LectureReview";
 import StudentFeedbackInbox from "./pages/StudentFeedbackInbox";
+import ProfessorInsights from "./pages/ProfessorInsights";
 
 function ProtectedProfessorRoute({ children }) {
   const token = localStorage.getItem("professor_token");
@@ -65,6 +66,15 @@ function App() {
           element={
             <ProtectedProfessorRoute>
               <StudentFeedbackInbox />
+            </ProtectedProfessorRoute>
+          }
+        />
+
+        <Route
+          path="/professor/insights"
+          element={
+            <ProtectedProfessorRoute>
+              <ProfessorInsights />
             </ProtectedProfessorRoute>
           }
         />

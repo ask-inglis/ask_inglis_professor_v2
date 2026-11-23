@@ -143,6 +143,182 @@ class StudentFeedbackClient:
         except (UnicodeError, json.JSONDecodeError) as exc:
             raise FeedbackClientError("Student chatbot returned invalid JSON") from exc
 
+    def get_insights(self, weeks: int = 4) -> dict[str, Any]:
+        """Retrieve only privacy-approved Student Chatbot insights."""
+        if type(weeks) is not int or not 1 <= weeks <= 26:
+            raise ValueError("weeks must be between 1 and 26")
+
+        if self.is_mock:
+            raise FeedbackClientError(
+                "Live Student Chatbot is required for Insights"
+            )
+
+        result = self._request(
+            "GET", f"/admin/insights?weeks={weeks}"
+        )
+
+        if not isinstance(result, dict):
+            raise FeedbackClientError("Invalid Insights response")
+
+        privacy = result.get("privacy")
+        if not isinstance(privacy, dict):
+            raise FeedbackClientError("Missing Insights privacy information")
+
+        if privacy.get("individual_data_exposed") is not False:
+            raise FeedbackClientError("Insights privacy validation failed")
+
+        allowed_keys = {
+            "status", "weeks_requested", "privacy",
+            "frequently_asked_topics", "quiz_performance",
+            "dissection_guides", "learning_gaps",
+            "weekly_trends", "recommendations", "course_activity",
+        }
+
+        if set(result) - allowed_keys:
+            raise FeedbackClientError(
+                "Unexpected fields in Insights response"
+            )
+
+        if result.get("status") == "reviewed_snapshot_candidate":
+            if weeks != 4 or result.get("weeks_requested") != 4:
+                raise FeedbackClientError(
+                    "Unsupported snapshot reporting period"
+                )
+
+            if set(result) != allowed_keys:
+                raise FeedbackClientError(
+                    "Incomplete snapshot response"
+                )
+
+            if set(privacy) != {
+                "individual_data_exposed",
+                "contributor_verification",
+                "reporting_basis",
+                "message",
+            }:
+                raise FeedbackClientError(
+                    "Unexpected snapshot privacy fields"
+                )
+
+            if (
+                privacy.get("contributor_verification") != "not_applicable"
+                or privacy.get("reporting_basis")
+                != "interaction_activity_not_students"
+                or not isinstance(privacy.get("message"), str)
+            ):
+                raise FeedbackClientError(
+                    "Invalid snapshot privacy information"
+                )
+
+            activity = result.get("course_activity")
+
+            if not isinstance(activity, dict) or set(activity) != {
+                "period_start", "period_end", "activity_level"
+            }:
+                raise FeedbackClientError(
+                    "Invalid course activity summary"
+                )
+
+            from datetime import date, timedelta
+
+            try:
+                period_start = date.fromisoformat(
+                    activity["period_start"]
+                )
+                period_end = date.fromisoformat(
+                    activity["period_end"]
+                )
+            except (TypeError, ValueError) as exc:
+                raise FeedbackClientError(
+                    "Invalid snapshot dates"
+                ) from exc
+
+            if (
+                period_start.weekday() != 0
+                or period_end - period_start != timedelta(days=27)
+                or activity["period_start"] != period_start.isoformat()
+                or activity["period_end"] != period_end.isoformat()
+                or period_end >= (
+                    date.today() - timedelta(days=date.today().weekday())
+                )
+            ):
+                raise FeedbackClientError(
+                    "Invalid snapshot reporting window"
+                )
+
+            if activity["activity_level"] not in (
+                None, "low", "moderate", "high", "very_high"
+            ):
+                raise FeedbackClientError(
+                    "Unsupported activity level"
+                )
+
+            for section in (
+                "frequently_asked_topics",
+                "quiz_performance",
+                "dissection_guides",
+                "learning_gaps",
+                "weekly_trends",
+            ):
+                if result.get(section) != {
+                    "status": "not_available",
+                    "items": [],
+                }:
+                    raise FeedbackClientError(
+                        "Unexpected snapshot details"
+                    )
+
+            if result.get("recommendations") != []:
+                raise FeedbackClientError(
+                    "Unexpected recommendations"
+                )
+
+            return result
+
+        # The current API supports withheld reports only.
+        # Approved aggregate publication requires a separate,
+        # explicitly reviewed reporting contract.
+        if result.get("status") != "insufficient_anonymous_data":
+            raise FeedbackClientError(
+                "Unsupported Insights publication status"
+            )
+
+        if result.get("weeks_requested") != weeks:
+            raise FeedbackClientError(
+                "Insights reporting period mismatch"
+            )
+
+        if privacy.get("contributor_verification") != "unavailable":
+            raise FeedbackClientError(
+                "Unexpected contributor verification status"
+            )
+
+        sections = (
+            "frequently_asked_topics",
+            "quiz_performance",
+            "dissection_guides",
+            "learning_gaps",
+            "weekly_trends",
+        )
+
+        for section in sections:
+            data = result.get(section)
+            if (
+                not isinstance(data, dict)
+                or data.get("status") != "insufficient_anonymous_data"
+                or data.get("items") != []
+            ):
+                raise FeedbackClientError(
+                    "Unexpected Insights statistics in " + section
+                )
+
+        if result.get("recommendations") != []:
+            raise FeedbackClientError(
+                "Unexpected Insights recommendations"
+            )
+
+        return result
+
     def list_queue(self, *, limit: int = 50, status: str = "pending_review") -> dict[str, Any]:
         """Return {'mode', 'groups', 'total_groups'} for the professor API.
 

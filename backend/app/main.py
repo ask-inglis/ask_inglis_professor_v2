@@ -3050,3 +3050,11 @@ from app.lecture_external_research_routes import build_lecture_external_research
 app.include_router(
     build_lecture_external_research_router(get_current_professor)
 )
+
+
+# Professor Insights — privacy-protected student analytics
+from app.professor_insights_routes import build_professor_insights_router
+
+app.include_router(
+    build_professor_insights_router(get_current_professor)
+)
